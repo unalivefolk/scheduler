@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Log Jadwal Pasangan</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .shift-input {
+            width: 45px;
+            height: 45px;
+            text-align: center;
+            border-radius: 8px;
+            font-weight: bold;
+            transition: all 0.2s;
+            text-transform: uppercase;
+        }
+        .shift-P { background-color: #fef3c7; color: #92400e; border-color: #f59e0b; } /* Pagi */
+        .shift-S { background-color: #dcfce7; color: #166534; border-color: #22c55e; } /* Siang */
+        .shift-M { background-color: #e0e7ff; color: #3730a3; border-color: #6366f1; } /* Malam */
+        .shift-L, .shift-PH, .shift-C { background-color: #fee2e2; color: #991b1b; border-color: #ef4444; } /* Libur */
+        
+        .match-libur {
+            background-color: #f0fdf4;
+            border-left: 4px solid #22c55e;
+        }
+
+        .match-kerja {
+            background-color: #fffbeb;
+            border-left: 4px solid #f59e0b;
+        }
+        
+        @media (max-width: 640px) {
+            .shift-input {
+                width: 40px;
+                height: 40px;
+                font-size: 14px;
+            }
+        }
+
+        #toast {
+            visibility: hidden;
+            min-width: 250px;
+            margin-left: -125px;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            border-radius: 8px;
+            padding: 16px;
+            position: fixed;
+            z-index: 20;
+            left: 50%;
+            bottom: 30px;
+        }
+        #toast.show {
+            visibility: visible;
+            animation: fadein 0.5s, fadeout 0.5s 2.5s;
+        }
+        @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
+        @keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
+    </style>
+</head>
+<body class="bg-slate-50 min-h-screen pb-20">
+
+    <div class="max-w-4xl mx-auto px-4 py-8">
+        <header class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-pink-600">Scheduler</h1>
+            <p class="text-slate-600 mt-2 text-sm sm:text-base">Mencatat dan mencocokkan jadwal shift berdua</p>
+        </header>
+
+        <!-- Keterangan Kode -->
+        <div class="bg-white p-4 rounded-xl shadow-sm mb-6 flex flex-wrap justify-center gap-4 text-xs sm:text-sm font-medium border border-slate-200">
+            <div class="flex items-center gap-1"><span class="w-3 h-3 rounded shift-P border inline-block"></span> P: Pagi</div>
+            <div class="flex items-center gap-1"><span class="w-3 h-3 rounded shift-S border inline-block"></span> S: Siang</div>
+            <div class="flex items-center gap-1"><span class="w-3 h-3 rounded shift-M border inline-block"></span> M: Malam</div>
+            <div class="flex items-center gap-1"><span class="w-3 h-3 rounded shift-L border inline-block"></span> L/PH/C: Libur</div>
+        </div>
+
+        <!-- Tabel Jadwal -->
+        <div class="bg-white rounded-2xl shadow-xl overflow-hidden border border-slate-200 mb-8">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-slate-100 text-slate-700 uppercase text-[10px] sm:text-xs tracking-wider">
+                            <th class="p-4 border-b">Tgl</th>
+                            <th class="p-4 border-b">Suami</th>
+                            <th class="p-4 border-b">Istri</th>
+                            <th class="p-4 border-b text-center">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="scheduleBody">
+                        <!-- Baris akan dibuat melalui JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Ringkasan Detail -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <!-- Card Libur Bersama -->
+            <div class="bg-white rounded-2xl shadow-lg border border-green-100 overflow-hidden">
+                <div class="bg-gradient-to-r from-green-500 to-emerald-600 p-4 text-center text-white">
+                    <h2 class="text-sm font-bold uppercase tracking-wider">Libur Bersama</h2>
+                    <p id="liburCount" class="text-4xl font-black my-1">0</p>
+                </div>
+                <div class="p-4">
+                    <div id="liburDateList" class="flex flex-wrap gap-2 min-h-[40px]">
+                        <span class="text-slate-400 italic text-xs">Belum ada hari libur bersama...</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card Shift Sama -->
+            <div class="bg-white rounded-2xl shadow-lg border border-amber-100 overflow-hidden">
+                <div class="bg-gradient-to-r from-amber-500 to-orange-600 p-4 text-center text-white">
+                    <h2 class="text-sm font-bold uppercase tracking-wider">Shift Kerja Sama</h2>
+                    <p id="kerjaCount" class="text-4xl font-black my-1">0</p>
+                </div>
+                <div class="p-4">
+                    <div id="kerjaDateList" class="flex flex-wrap gap-2 min-h-[40px]">
+                        <span class="text-slate-400 italic text-xs">Belum ada shift kerja yang sama...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mt-8 flex flex-wrap justify-center gap-4">
+            <button onclick="resetJadwal()" class="px-6 py-3 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 rounded-xl shadow-sm transition font-bold flex items-center gap-2">
+                <span>🔄</span> Reset Log
+            </button>
+            <button onclick="window.print()" class="px-6 py-3 bg-slate-800 hover:bg-slate-900 text-white rounded-xl shadow-lg transition font-bold flex items-center gap-2">
+                <span>📄</span> Simpan/Cetak
+            </button>
+        </div>
+    </div>
+
+    <div id="toast">Log jadwal tersimpan! ✅</div>
+
+    <script>
+        const daysInMonth = 31;
+        const liburCodes = ['L', 'PH', 'C'];
+        const kerjaCodes = ['P', 'S', 'M'];
+        const STORAGE_KEY = 'log_jadwal_pasangan_data_v2';
+
+        let scheduleData = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
+
+        function initTable() {
+            const tbody = document.getElementById('scheduleBody');
+            tbody.innerHTML = '';
+
+            for (let i = 1; i <= daysInMonth; i++) {
+                const valH = scheduleData[`h-${i}`] || '';
+                const valW = scheduleData[`w-${i}`] || '';
+                
+                const row = document.createElement('tr');
+                row.id = `row-${i}`;
+                row.className = "border-b hover:bg-slate-50 transition";
+                
+                row.innerHTML = `
+                    <td class="p-4 font-bold text-slate-400 text-sm">${i}</td>
+                    <td class="p-2 sm:p-4">
+                        <input type="text" maxlength="2" placeholder="-" 
+                            class="shift-input border border-slate-200" 
+                            value="${valH}"
+                            oninput="saveAndRefresh(${i}, 'h', this.value)" id="h-${i}">
+                    </td>
+                    <td class="p-2 sm:p-4">
+                        <input type="text" maxlength="2" placeholder="-" 
+                            class="shift-input border border-slate-200" 
+                            value="${valW}"
+                            oninput="saveAndRefresh(${i}, 'w', this.value)" id="w-${i}">
+                    </td>
+                    <td class="p-2 sm:p-4 text-center" id="status-${i}">
+                        <span class="text-slate-300">-</span>
+                    </td>
+                `;
+                tbody.appendChild(row);
+                
+                updateVisuals(i);
+            }
+            updateSummary();
+        }
+
+        function saveAndRefresh(day, person, value) {
+            const upperVal = value.toUpperCase();
+            const input = document.getElementById(`${person}-${day}`);
+            input.value = upperVal;
+
+            scheduleData[`${person}-${day}`] = upperVal;
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(scheduleData));
+
+            updateVisuals(day);
+            updateSummary();
+            showToast();
+        }
+
+        function updateVisuals(day) {
+            const inputH = document.getElementById(`h-${day}`);
+            const inputW = document.getElementById(`w-${day}`);
+            const valH = inputH.value.toUpperCase();
+            const valW = inputW.value.toUpperCase();
+            const statusCell = document.getElementById(`status-${day}`);
+            const row = document.getElementById(`row-${day}`);
+
+            [inputH, inputW].forEach(input => {
+                const v = input.value.toUpperCase();
+                input.className = 'shift-input border';
+                if (v === 'P') input.classList.add('shift-P');
+                else if (v === 'S') input.classList.add('shift-S');
+                else if (v === 'M') input.classList.add('shift-M');
+                else if (liburCodes.includes(v)) input.classList.add('shift-L');
+                else input.classList.add('border-slate-200');
+            });
+
+            const isHLibur = liburCodes.includes(valH);
+            const isWLibur = liburCodes.includes(valW);
+            
+            row.classList.remove('match-libur', 'match-kerja');
+
+            if (isHLibur && isWLibur) {
+                statusCell.innerHTML = '<span class="px-2 py-1 bg-green-500 text-white text-[10px] sm:text-xs rounded-full font-bold shadow-sm whitespace-nowrap">👩‍❤️‍👨 LIBUR BERSAMA</span>';
+                row.classList.add('match-libur');
+            } else if (valH !== '' && valH === valW && kerjaCodes.includes(valH)) {
+                statusCell.innerHTML = '<span class="px-2 py-1 bg-amber-500 text-white text-[10px] sm:text-xs rounded-full font-bold shadow-sm whitespace-nowrap">🤝 SHIFT SAMA</span>';
+                row.classList.add('match-kerja');
+            } else {
+                statusCell.innerHTML = '<span class="text-slate-300 text-xs">-</span>';
+            }
+        }
+
+        function updateSummary() {
+            let liburCount = 0;
+            let kerjaCount = 0;
+            let liburDates = [];
+            let kerjaDates = [];
+
+            for (let i = 1; i <= daysInMonth; i++) {
+                const valH = (scheduleData[`h-${i}`] || '').toUpperCase();
+                const valW = (scheduleData[`w-${i}`] || '').toUpperCase();
+                
+                if (liburCodes.includes(valH) && liburCodes.includes(valW)) {
+                    liburCount++;
+                    liburDates.push(i);
+                } else if (valH !== '' && valH === valW && kerjaCodes.includes(valH)) {
+                    kerjaCount++;
+                    kerjaDates.push(`${i} (${valH})`);
+                }
+            }
+
+            document.getElementById('liburCount').innerText = liburCount;
+            document.getElementById('kerjaCount').innerText = kerjaCount;
+            
+            const liburDiv = document.getElementById('liburDateList');
+            const kerjaDiv = document.getElementById('kerjaDateList');
+
+            liburDiv.innerHTML = liburDates.length > 0 
+                ? liburDates.map(d => `<span class="px-2 py-1 bg-green-100 text-green-700 text-xs font-bold rounded border border-green-200 shadow-sm">Tgl ${d}</span>`).join('')
+                : '<span class="text-slate-400 italic text-xs">Belum ada hari libur bersama...</span>';
+
+            kerjaDiv.innerHTML = kerjaDates.length > 0 
+                ? kerjaDates.map(d => `<span class="px-2 py-1 bg-amber-100 text-amber-700 text-xs font-bold rounded border border-amber-200 shadow-sm">Tgl ${d}</span>`).join('')
+                : '<span class="text-slate-400 italic text-xs">Belum ada shift kerja yang sama...</span>';
+        }
+
+        let toastTimeout;
+        function showToast() {
+            const toast = document.getElementById("toast");
+            toast.className = "show";
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 3000);
+        }
+
+        function resetJadwal() {
+            const modal = confirm('Hapus semua log jadwal? Data tidak bisa dikembalikan.');
+            if(modal) {
+                localStorage.removeItem(STORAGE_KEY);
+                scheduleData = {};
+                initTable();
+            }
+        }
+
+        window.onload = initTable;
+    </script>
+</body>
+</html>
