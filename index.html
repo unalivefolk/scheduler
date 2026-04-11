@@ -6,6 +6,33 @@
     <title>Schedule•Us</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
+        /* Base Colors & Dark Mode Logic */
+        :root {
+            --bg-main: #f8fafc;
+            --bg-card: #ffffff;
+            --text-main: #1e293b;
+            --border-color: #e2e8f0;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg-main: #0f172a;
+                --bg-card: #1e293b;
+                --text-main: #f1f5f9;
+                --border-color: #334155;
+            }
+            body { background-color: var(--bg-main) !important; color: var(--text-main); }
+            .bg-white { background-color: var(--bg-card) !important; }
+            .bg-slate-50 { background-color: var(--bg-main) !important; }
+            .bg-slate-100 { background-color: #334155 !important; }
+            .text-slate-600, .text-slate-400 { color: #94a3b8 !important; }
+            .text-slate-700 { color: #e2e8f0 !important; }
+            .border-slate-200, .border-slate-300 { border-color: var(--border-color) !important; }
+            input, select { background-color: #334155 !important; color: white !important; border-color: #475569 !important; }
+            .bg-pink-50 { background-color: #3d0a21 !important; border-color: #831843 !important; }
+            .text-pink-700 { color: #f9a8d4 !important; }
+        }
+
         .shift-input {
             width: 45px;
             height: 45px;
@@ -15,20 +42,24 @@
             transition: all 0.2s;
             text-transform: uppercase;
         }
-        .shift-P { background-color: #fef3c7; color: #92400e; border-color: #f59e0b; } /* Pagi */
-        .shift-S { background-color: #dcfce7; color: #166534; border-color: #22c55e; } /* Siang */
-        .shift-M { background-color: #e0e7ff; color: #3730a3; border-color: #6366f1; } /* Malam */
-        .shift-L, .shift-PH, .shift-C { background-color: #fee2e2; color: #991b1b; border-color: #ef4444; } /* Libur */
         
-        .match-libur {
-            background-color: #f0fdf4 !important;
-            border-left: 4px solid #22c55e;
+        /* Shift Colors */
+        .shift-P { background-color: #fef3c7; color: #92400e; border-color: #f59e0b; }
+        .shift-S { background-color: #dcfce7; color: #166534; border-color: #22c55e; }
+        .shift-M { background-color: #e0e7ff; color: #3730a3; border-color: #6366f1; }
+        .shift-L, .shift-PH, .shift-C { background-color: #fee2e2; color: #991b1b; border-color: #ef4444; }
+
+        @media (prefers-color-scheme: dark) {
+            .shift-P { background-color: #452e00; color: #fbbf24; border-color: #d97706; }
+            .shift-S { background-color: #064e3b; color: #6ee7b7; border-color: #059669; }
+            .shift-M { background-color: #1e1b4b; color: #a5b4fc; border-color: #4f46e5; }
+            .shift-L, .shift-PH, .shift-C { background-color: #450a0a; color: #fca5a5; border-color: #dc2626; }
+            .match-libur { background-color: #064e3b44 !important; border-left: 4px solid #10b981; }
+            .match-kerja { background-color: #452e0044 !important; border-left: 4px solid #f59e0b; }
         }
 
-        .match-kerja {
-            background-color: #fffbeb !important;
-            border-left: 4px solid #f59e0b;
-        }
+        .match-libur { background-color: #f0fdf4 !important; border-left: 4px solid #22c55e; }
+        .match-kerja { background-color: #fffbeb !important; border-left: 4px solid #f59e0b; }
 
         .search-highlight {
             animation: highlight-pulse 2s ease-in-out;
@@ -41,103 +72,24 @@
             50% { background-color: #a78bfa; }
             100% { background-color: transparent; }
         }
-        
-        @media (max-width: 640px) {
-            .shift-input {
-                width: 40px;
-                height: 40px;
-                font-size: 14px;
-            }
-        }
 
-        #toast {
-            visibility: hidden;
-            min-width: 250px;
-            margin-left: -125px;
-            background-color: #333;
-            color: #fff;
-            text-align: center;
-            border-radius: 8px;
-            padding: 16px;
-            position: fixed;
-            z-index: 50;
-            left: 50%;
-            bottom: 30px;
-        }
-        #toast.show {
-            visibility: visible;
-            animation: fadein 0.5s, fadeout 0.5s 2.5s;
-        }
-        @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
-        @keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
-
-        /* Optimasi Cetak / PDF */
+        /* Print Logic */
         @media print {
-            @page {
-                size: A4;
-                margin: 1cm;
-            }
-            body {
-                background: white !important;
-                padding: 0 !important;
-            }
-            .no-print, #reminderBox, .mt-8, #searchInput, button, select {
-                display: none !important;
-            }
-            .max-w-4xl {
-                max-width: 100% !important;
-                padding: 0 !important;
-                margin: 0 !important;
-            }
-            header h1 {
-                font-size: 24px !important;
-                margin-bottom: 5px !important;
-            }
-            header p {
-                font-size: 12px !important;
-                margin-top: 0 !important;
-            }
-            .bg-pink-50 {
-                background: transparent !important;
-                border: none !important;
-                padding: 5px !important;
-                margin-bottom: 10px !important;
-            }
-            #print-period-title {
-                display: block !important;
-                font-weight: bold;
-                font-size: 18px;
-                text-align: center;
-                margin-bottom: 10px;
-            }
-            .shift-input {
-                border: 1px solid #ccc !important;
-                width: 35px !important;
-                height: 35px !important;
-                font-size: 12px !important;
-                background-color: transparent !important;
-            }
-            table th, table td {
-                padding: 6px !important;
-                font-size: 11px !important;
-            }
-            .grid {
-                display: grid !important;
-                grid-template-cols: 1fr 1fr !important;
-                gap: 10px !important;
-            }
-            .shadow-xl, .shadow-lg, .shadow-sm {
-                box-shadow: none !important;
-                border: 1px solid #eee !important;
-            }
-            footer {
-                margin-top: 15px !important;
-            }
+            @page { size: A4; margin: 1cm; }
+            body { background: white !important; color: black !important; padding: 0 !important; }
+            :root { --bg-main: white; --bg-card: white; --text-main: black; }
+            .no-print, #reminderBox, .mt-8, #searchInput, button, select { display: none !important; }
+            .max-w-4xl { max-width: 100% !important; padding: 0 !important; margin: 0 !important; }
+            .bg-pink-50 { background: transparent !important; border: none !important; }
+            #print-period-title { display: block !important; font-weight: bold; font-size: 18px; text-align: center; margin-bottom: 10px; }
+            .shift-input { border: 1px solid #ccc !important; width: 35px !important; height: 35px !important; font-size: 12px !important; background-color: transparent !important; }
+            .grid { display: grid !important; grid-template-cols: 1fr 1fr !important; gap: 10px !important; }
+            footer { margin-top: 15px !important; }
         }
         #print-period-title { display: none; }
     </style>
 </head>
-<body class="bg-slate-50 min-h-screen pb-10">
+<body class="bg-slate-50 min-h-screen pb-10 transition-colors duration-300">
 
     <div class="max-w-4xl mx-auto px-4 py-8">
         <header class="text-center mb-6">
@@ -145,10 +97,8 @@
             <p class="text-slate-600 mt-2 text-sm sm:text-base italic">"Menyelaraskan Jadwal Bersama."</p>
         </header>
 
-        <!-- Judul Khusus Saat Print -->
         <div id="print-period-title"></div>
 
-        <!-- Pemilih Bulan dan Tahun -->
         <div class="mb-6 flex flex-wrap justify-center gap-3 bg-pink-50 p-4 rounded-2xl border border-pink-100 shadow-sm no-print">
             <select id="monthSelect" onchange="changePeriod()" class="bg-white border border-pink-200 rounded-lg px-3 py-2 text-pink-700 font-bold focus:outline-none focus:ring-2 focus:ring-pink-400">
                 <option value="0">Januari</option>
@@ -165,11 +115,9 @@
                 <option value="11">Desember</option>
             </select>
             <select id="yearSelect" onchange="changePeriod()" class="bg-white border border-pink-200 rounded-lg px-3 py-2 text-pink-700 font-bold focus:outline-none focus:ring-2 focus:ring-pink-400">
-                <!-- Diisi via JS -->
             </select>
         </div>
 
-        <!-- Fitur Pencarian (Hidden on Print) -->
         <div class="mb-6 bg-white p-4 rounded-2xl shadow-sm border border-slate-200 flex flex-col sm:flex-row gap-4 items-center no-print">
             <div class="relative flex-1 w-full">
                 <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">🔍</span>
@@ -179,18 +127,16 @@
             <button onclick="searchDate()" class="w-full sm:w-auto px-6 py-2 bg-pink-500 hover:bg-pink-600 text-white font-bold rounded-xl transition">Cari</button>
         </div>
 
-        <!-- Pengingat Update (Hidden on Print) -->
-        <div id="reminderBox" class="hidden mb-6 bg-amber-50 border-l-4 border-amber-400 p-4 rounded-r-xl shadow-sm">
+        <div id="reminderBox" class="hidden mb-6 bg-amber-50 dark:bg-amber-900/30 border-l-4 border-amber-400 p-4 rounded-r-xl shadow-sm">
             <div class="flex items-center">
-                <div class="flex-shrink-0 text-amber-400 text-xl">⚠️</div>
+                <div class="flex-shrink-0 text-amber-500 text-xl">⚠️</div>
                 <div class="ml-3">
-                    <p class="text-sm text-amber-800 font-bold">Halo! Sudah akhir bulan nih.</p>
-                    <p class="text-xs text-amber-700">Yuk, siapkan dan update jadwal untuk bulan berikutnya di Schedule•Us.</p>
+                    <p class="text-sm text-amber-800 dark:text-amber-200 font-bold">Halo! Sudah akhir bulan nih.</p>
+                    <p class="text-xs text-amber-700 dark:text-amber-300">Yuk, update jadwal bulan berikutnya.</p>
                 </div>
             </div>
         </div>
 
-        <!-- Keterangan Kode -->
         <div class="bg-white p-4 rounded-xl shadow-sm mb-6 flex flex-wrap justify-center gap-4 text-xs sm:text-sm font-medium border border-slate-200">
             <div class="flex items-center gap-1"><span class="w-3 h-3 rounded shift-P border inline-block"></span> P: Pagi</div>
             <div class="flex items-center gap-1"><span class="w-3 h-3 rounded shift-S border inline-block"></span> S: Siang</div>
@@ -198,10 +144,9 @@
             <div class="flex items-center gap-1"><span class="w-3 h-3 rounded shift-L border inline-block"></span> L/PH/C: Libur</div>
         </div>
 
-        <!-- Tabel Jadwal -->
         <div class="bg-white rounded-2xl shadow-xl overflow-hidden border border-slate-200 mb-6">
             <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse" id="mainTable">
+                <table class="w-full text-left border-collapse">
                     <thead>
                         <tr class="bg-slate-100 text-slate-700 uppercase text-[10px] sm:text-xs tracking-wider">
                             <th class="p-4 border-b">Tgl</th>
@@ -210,45 +155,38 @@
                             <th class="p-4 border-b text-center">Status</th>
                         </tr>
                     </thead>
-                    <tbody id="scheduleBody">
-                        <!-- Baris akan dibuat melalui JavaScript -->
-                    </tbody>
+                    <tbody id="scheduleBody"></tbody>
                 </table>
             </div>
         </div>
 
-        <!-- Ringkasan Detail -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-            <div class="bg-white rounded-2xl shadow-lg border border-green-100 overflow-hidden">
+            <div class="bg-white rounded-2xl shadow-lg border border-green-100 dark:border-green-900/30 overflow-hidden">
                 <div class="bg-gradient-to-r from-green-500 to-emerald-600 p-3 text-center text-white">
                     <h2 class="text-[10px] font-bold uppercase tracking-wider">Libur Bersama</h2>
                     <p id="liburCount" class="text-2xl font-black">0</p>
                 </div>
                 <div class="p-3">
-                    <div id="liburDateList" class="flex flex-wrap gap-1.5 min-h-[30px]">
-                        <span class="text-slate-400 italic text-[10px]">Kosong</span>
-                    </div>
+                    <div id="liburDateList" class="flex flex-wrap gap-1.5 min-h-[30px]"></div>
                 </div>
             </div>
 
-            <div class="bg-white rounded-2xl shadow-lg border border-amber-100 overflow-hidden">
+            <div class="bg-white rounded-2xl shadow-lg border border-amber-100 dark:border-amber-900/30 overflow-hidden">
                 <div class="bg-gradient-to-r from-amber-500 to-orange-600 p-3 text-center text-white">
                     <h2 class="text-[10px] font-bold uppercase tracking-wider">Shift Kerja Sama</h2>
                     <p id="kerjaCount" class="text-2xl font-black">0</p>
                 </div>
                 <div class="p-3">
-                    <div id="kerjaDateList" class="flex flex-wrap gap-1.5 min-h-[30px]">
-                        <span class="text-slate-400 italic text-[10px]">Kosong</span>
-                    </div>
+                    <div id="kerjaDateList" class="flex flex-wrap gap-1.5 min-h-[30px]"></div>
                 </div>
             </div>
         </div>
         
         <div class="mt-8 flex flex-wrap justify-center gap-4 no-print">
-            <button onclick="resetJadwal()" class="px-6 py-3 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 rounded-xl shadow-sm transition font-bold flex items-center gap-2">
+            <button onclick="resetJadwal()" class="px-6 py-3 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 rounded-xl shadow-sm transition font-bold flex items-center gap-2">
                 <span>🔄</span> Reset Bulan Ini
             </button>
-            <button onclick="prepareAndPrint()" class="px-6 py-3 bg-slate-800 hover:bg-slate-900 text-white rounded-xl shadow-lg transition font-bold flex items-center gap-2">
+            <button onclick="prepareAndPrint()" class="px-6 py-3 bg-slate-800 dark:bg-pink-600 hover:bg-slate-900 dark:hover:bg-pink-700 text-white rounded-xl shadow-lg transition font-bold flex items-center gap-2">
                 <span>📄</span> Simpan PDF / Cetak
             </button>
         </div>
@@ -259,8 +197,6 @@
             </p>
         </footer>
     </div>
-
-    <div id="toast">Log tersimpan!</div>
 
     <script>
         const liburCodes = ['L', 'PH', 'C'];
@@ -274,18 +210,14 @@
         function initPeriod() {
             const monthSelect = document.getElementById('monthSelect');
             const yearSelect = document.getElementById('yearSelect');
-            
             monthSelect.value = currentMonth;
-            
             yearSelect.innerHTML = '';
             for (let y = currentYear - 1; y <= currentYear + 1; y++) {
                 const opt = document.createElement('option');
-                opt.value = y;
-                opt.text = y;
+                opt.value = y; opt.text = y;
                 yearSelect.appendChild(opt);
             }
             yearSelect.value = currentYear;
-
             checkReminder();
             loadData();
         }
@@ -310,28 +242,18 @@
             for (let i = 1; i <= daysInMonth; i++) {
                 const valH = scheduleData[`h-${i}`] || '';
                 const valW = scheduleData[`w-${i}`] || '';
-                
                 const row = document.createElement('tr');
                 row.id = `row-${i}`;
-                row.className = "border-b hover:bg-slate-50 transition";
-                
+                row.className = "border-b dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition";
                 row.innerHTML = `
                     <td class="p-3 font-bold text-slate-400 text-xs">${i}</td>
                     <td class="p-2">
-                        <input type="text" maxlength="2" placeholder="-" 
-                            class="shift-input border border-slate-200" 
-                            value="${valH}"
-                            oninput="saveAndRefresh(${i}, 'h', this.value)" id="h-${i}">
+                        <input type="text" maxlength="2" placeholder="-" class="shift-input border border-slate-200" value="${valH}" oninput="saveAndRefresh(${i}, 'h', this.value)" id="h-${i}">
                     </td>
                     <td class="p-2">
-                        <input type="text" maxlength="2" placeholder="-" 
-                            class="shift-input border border-slate-200" 
-                            value="${valW}"
-                            oninput="saveAndRefresh(${i}, 'w', this.value)" id="w-${i}">
+                        <input type="text" maxlength="2" placeholder="-" class="shift-input border border-slate-200" value="${valW}" oninput="saveAndRefresh(${i}, 'w', this.value)" id="w-${i}">
                     </td>
-                    <td class="p-2 text-center" id="status-${i}">
-                        <span class="text-slate-300">-</span>
-                    </td>
+                    <td class="p-2 text-center" id="status-${i}"></td>
                 `;
                 tbody.appendChild(row);
                 updateVisuals(i);
@@ -341,27 +263,21 @@
 
         function saveAndRefresh(day, person, value) {
             const upperVal = value.toUpperCase();
-            const input = document.getElementById(`${person}-${day}`);
-            input.value = upperVal;
-
+            document.getElementById(`${person}-${day}`).value = upperVal;
             scheduleData[`${person}-${day}`] = upperVal;
-            const key = BASE_STORAGE_KEY + currentMonth + '_' + currentYear;
-            localStorage.setItem(key, JSON.stringify(scheduleData));
-
+            localStorage.setItem(BASE_STORAGE_KEY + currentMonth + '_' + currentYear, JSON.stringify(scheduleData));
             updateVisuals(day);
             updateSummary();
-            showToast("Log tersimpan! ✅");
+            // Toast dihapus sesuai permintaan
         }
 
         function updateVisuals(day) {
             const inputH = document.getElementById(`h-${day}`);
             const inputW = document.getElementById(`w-${day}`);
-            if (!inputH || !inputW) return;
-
-            const valH = inputH.value.toUpperCase();
-            const valW = inputW.value.toUpperCase();
             const statusCell = document.getElementById(`status-${day}`);
             const row = document.getElementById(`row-${day}`);
+            const valH = inputH.value.toUpperCase();
+            const valW = inputW.value.toUpperCase();
 
             [inputH, inputW].forEach(input => {
                 const v = input.value.toUpperCase();
@@ -370,19 +286,15 @@
                 else if (v === 'S') input.classList.add('shift-S');
                 else if (v === 'M') input.classList.add('shift-M');
                 else if (liburCodes.includes(v)) input.classList.add('shift-L');
-                else input.classList.add('border-slate-200');
+                else input.classList.add('border-slate-200', 'dark:border-slate-600');
             });
 
-            const isHLibur = liburCodes.includes(valH);
-            const isWLibur = liburCodes.includes(valW);
-            
             row.classList.remove('match-libur', 'match-kerja');
-
-            if (isHLibur && isWLibur) {
-                statusCell.innerHTML = '<span class="px-2 py-1 bg-green-500 text-white text-[9px] sm:text-[10px] rounded-full font-bold shadow-sm whitespace-nowrap">👩‍❤️‍👨 LIBUR BERSAMA</span>';
+            if (liburCodes.includes(valH) && liburCodes.includes(valW)) {
+                statusCell.innerHTML = '<span class="px-2 py-1 bg-green-500 text-white text-[9px] rounded-full font-bold shadow-sm whitespace-nowrap">LIBUR BERSAMA</span>';
                 row.classList.add('match-libur');
             } else if (valH !== '' && valH === valW && kerjaCodes.includes(valH)) {
-                statusCell.innerHTML = '<span class="px-2 py-1 bg-amber-500 text-white text-[9px] sm:text-[10px] rounded-full font-bold shadow-sm whitespace-nowrap">🤝 SHIFT SAMA</span>';
+                statusCell.innerHTML = '<span class="px-2 py-1 bg-amber-500 text-white text-[9px] rounded-full font-bold shadow-sm whitespace-nowrap">SHIFT SAMA</span>';
                 row.classList.add('match-kerja');
             } else {
                 statusCell.innerHTML = '<span class="text-slate-300 text-[10px]">-</span>';
@@ -390,106 +302,63 @@
         }
 
         function updateSummary() {
-            let liburCount = 0;
-            let kerjaCount = 0;
-            let liburEntries = [];
-            let kerjaEntries = [];
-            const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+            let lCount = 0, kCount = 0;
+            let lEntries = [], kEntries = [];
+            const days = new Date(currentYear, currentMonth + 1, 0).getDate();
 
-            for (let i = 1; i <= daysInMonth; i++) {
-                const valH = (scheduleData[`h-${i}`] || '').toUpperCase();
-                const valW = (scheduleData[`w-${i}`] || '').toUpperCase();
-                
-                if (liburCodes.includes(valH) && liburCodes.includes(valW)) {
-                    liburCount++;
-                    // Jika kode libur sama (misal sama-sama PH), tampilkan satu saja
-                    // Jika beda (misal satu L satu PH), tampilkan keduanya
-                    const label = valH === valW ? valH : `${valH}&${valW}`;
-                    liburEntries.push({ day: i, label: label });
-                } else if (valH !== '' && valH === valW && kerjaCodes.includes(valH)) {
-                    kerjaCount++;
-                    kerjaEntries.push({ day: i, label: valH });
+            for (let i = 1; i <= days; i++) {
+                const h = (scheduleData[`h-${i}`] || '').toUpperCase();
+                const w = (scheduleData[`w-${i}`] || '').toUpperCase();
+                if (liburCodes.includes(h) && liburCodes.includes(w)) {
+                    lCount++; lEntries.push({d: i, l: h === w ? h : `${h}&${w}`});
+                } else if (h !== '' && h === w && kerjaCodes.includes(h)) {
+                    kCount++; kEntries.push({d: i, l: h});
                 }
             }
 
-            document.getElementById('liburCount').innerText = liburCount;
-            document.getElementById('kerjaCount').innerText = kerjaCount;
+            document.getElementById('liburCount').innerText = lCount;
+            document.getElementById('kerjaCount').innerText = kCount;
             
-            const liburDiv = document.getElementById('liburDateList');
-            const kerjaDiv = document.getElementById('kerjaDateList');
+            document.getElementById('liburDateList').innerHTML = lEntries.length > 0 ? lEntries.map(e => `
+                <div class="flex flex-col items-center bg-green-100 dark:bg-green-900/40 border border-green-200 dark:border-green-800 rounded px-1.5 py-0.5">
+                    <span class="text-green-700 dark:text-green-300 text-[10px] font-bold">Tgl ${e.d}</span>
+                    <span class="text-green-600 dark:text-green-400 text-[8px] uppercase">${e.l}</span>
+                </div>`).join('') : '<span class="text-slate-400 italic text-[10px]">Kosong</span>';
 
-            liburDiv.innerHTML = liburEntries.length > 0 
-                ? liburEntries.map(e => `
-                    <div class="flex flex-col items-center bg-green-100 border border-green-200 rounded px-1.5 py-0.5">
-                        <span class="text-green-700 text-[10px] font-bold">Tgl ${e.day}</span>
-                        <span class="text-green-600 text-[8px] uppercase">${e.label}</span>
-                    </div>
-                `).join('')
-                : '<span class="text-slate-400 italic text-[10px]">Kosong</span>';
-
-            kerjaDiv.innerHTML = kerjaEntries.length > 0 
-                ? kerjaEntries.map(e => `
-                    <div class="flex flex-col items-center bg-amber-100 border border-amber-200 rounded px-1.5 py-0.5">
-                        <span class="text-amber-700 text-[10px] font-bold">Tgl ${e.day}</span>
-                        <span class="text-amber-600 text-[8px] uppercase">Shift ${e.label}</span>
-                    </div>
-                `).join('')
-                : '<span class="text-slate-400 italic text-[10px]">Kosong</span>';
-        }
-
-        function checkReminder() {
-            const today = new Date();
-            const date = today.getDate();
-            if (date >= 25) {
-                document.getElementById('reminderBox').classList.remove('hidden');
-            }
+            document.getElementById('kerjaDateList').innerHTML = kEntries.length > 0 ? kEntries.map(e => `
+                <div class="flex flex-col items-center bg-amber-100 dark:bg-amber-900/40 border border-amber-200 dark:border-amber-800 rounded px-1.5 py-0.5">
+                    <span class="text-amber-700 dark:text-amber-300 text-[10px] font-bold">Tgl ${e.d}</span>
+                    <span class="text-amber-600 dark:text-amber-400 text-[8px] uppercase">Shift ${e.l}</span>
+                </div>`).join('') : '<span class="text-slate-400 italic text-[10px]">Kosong</span>';
         }
 
         function searchDate() {
-            const input = document.getElementById('searchInput');
-            const day = parseInt(input.value);
-            const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-            
-            if (isNaN(day) || day < 1 || day > daysInMonth) {
-                showToast(`Pilih 1 - ${daysInMonth}! ⚠️`);
-                return;
+            const val = parseInt(document.getElementById('searchInput').value);
+            if (val > 0) {
+                const row = document.getElementById(`row-${val}`);
+                if (row) {
+                    row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    row.classList.add('search-highlight');
+                    setTimeout(() => row.classList.remove('search-highlight'), 2000);
+                }
             }
-            goToDate(day);
-            input.value = '';
         }
 
-        function goToDate(day) {
-            const row = document.getElementById(`row-${day}`);
-            if (row) {
-                document.querySelectorAll('.search-highlight').forEach(el => el.classList.remove('search-highlight'));
-                row.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                row.classList.add('search-highlight');
-                document.getElementById(`h-${day}`).focus();
-            }
+        function checkReminder() {
+            if (new Date().getDate() >= 25) document.getElementById('reminderBox').classList.remove('hidden');
         }
 
         function prepareAndPrint() {
-            const monthName = document.getElementById('monthSelect').options[document.getElementById('monthSelect').selectedIndex].text;
-            const yearVal = document.getElementById('yearSelect').value;
-            document.getElementById('print-period-title').innerText = `Jadwal Periode: ${monthName} ${yearVal}`;
+            const m = document.getElementById('monthSelect').options[document.getElementById('monthSelect').selectedIndex].text;
+            const y = document.getElementById('yearSelect').value;
+            document.getElementById('print-period-title').innerText = `Jadwal Periode: ${m} ${y}`;
             window.print();
-        }
-
-        let toastTimeout;
-        function showToast(msg) {
-            const toast = document.getElementById("toast");
-            toast.innerText = msg;
-            toast.className = "show";
-            clearTimeout(toastTimeout);
-            toastTimeout = setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 3000);
         }
 
         function resetJadwal() {
             if(confirm('Hapus log bulan ini?')) {
-                const key = BASE_STORAGE_KEY + currentMonth + '_' + currentYear;
-                localStorage.removeItem(key);
-                scheduleData = {};
-                initTable();
+                localStorage.removeItem(BASE_STORAGE_KEY + currentMonth + '_' + currentYear);
+                scheduleData = {}; initTable();
             }
         }
 
