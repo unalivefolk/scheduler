@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Log Jadwal Pasangan</title>
+    <title>Schedule•Us</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .shift-input {
@@ -32,7 +32,7 @@
 
         .search-highlight {
             animation: highlight-pulse 2s ease-in-out;
-            background-color: #ede9fe !important; /* Ungu muda untuk pencarian */
+            background-color: #ede9fe !important; 
             outline: 2px solid #8b5cf6;
         }
 
@@ -72,13 +72,34 @@
         @keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
     </style>
 </head>
-<body class="bg-slate-50 min-h-screen pb-20">
+<body class="bg-slate-50 min-h-screen pb-10">
 
     <div class="max-w-4xl mx-auto px-4 py-8">
-        <header class="text-center mb-8">
-            <h1 class="text-3xl font-bold text-pink-600">Schedule•Us</h1>
-            <p class="text-slate-600 mt-2 text-sm sm:text-base">Mencatat dan mencocokkan jadwal shift berdua</p>
+        <header class="text-center mb-6">
+            <h1 class="text-4xl font-black text-pink-600 tracking-tight">Schedule•Us</h1>
+            <p class="text-slate-600 mt-2 text-sm sm:text-base italic">"Menyelaraskan waktu, merajut rindu."</p>
         </header>
+
+        <!-- Pemilih Bulan dan Tahun -->
+        <div class="mb-6 flex flex-wrap justify-center gap-3 bg-pink-50 p-4 rounded-2xl border border-pink-100 shadow-sm">
+            <select id="monthSelect" onchange="changePeriod()" class="bg-white border border-pink-200 rounded-lg px-3 py-2 text-pink-700 font-bold focus:outline-none focus:ring-2 focus:ring-pink-400">
+                <option value="0">Januari</option>
+                <option value="1">Februari</option>
+                <option value="2">Maret</option>
+                <option value="3">April</option>
+                <option value="4">Mei</option>
+                <option value="5">Juni</option>
+                <option value="6">Juli</option>
+                <option value="7">Agustus</option>
+                <option value="8">September</option>
+                <option value="9">Oktober</option>
+                <option value="10">November</option>
+                <option value="11">Desember</option>
+            </select>
+            <select id="yearSelect" onchange="changePeriod()" class="bg-white border border-pink-200 rounded-lg px-3 py-2 text-pink-700 font-bold focus:outline-none focus:ring-2 focus:ring-pink-400">
+                <!-- Diisi via JS -->
+            </select>
+        </div>
 
         <!-- Fitur Pencarian -->
         <div class="mb-6 bg-white p-4 rounded-2xl shadow-sm border border-slate-200 flex flex-col sm:flex-row gap-4 items-center">
@@ -88,6 +109,17 @@
                     class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-pink-400 focus:outline-none transition">
             </div>
             <button onclick="searchDate()" class="w-full sm:w-auto px-6 py-2 bg-pink-500 hover:bg-pink-600 text-white font-bold rounded-xl transition">Cari</button>
+        </div>
+
+        <!-- Pengingat Update (Hidden by Default) -->
+        <div id="reminderBox" class="hidden mb-6 bg-amber-50 border-l-4 border-amber-400 p-4 rounded-r-xl shadow-sm">
+            <div class="flex items-center">
+                <div class="flex-shrink-0 text-amber-400 text-xl">⚠️</div>
+                <div class="ml-3">
+                    <p class="text-sm text-amber-800 font-bold">Halo! Sudah akhir bulan nih.</p>
+                    <p class="text-xs text-amber-700">Yuk, siapkan dan update jadwal untuk bulan berikutnya di Schedule•Us.</p>
+                </div>
+            </div>
         </div>
 
         <!-- Keterangan Kode -->
@@ -105,8 +137,8 @@
                     <thead>
                         <tr class="bg-slate-100 text-slate-700 uppercase text-[10px] sm:text-xs tracking-wider">
                             <th class="p-4 border-b">Tgl</th>
-                            <th class="p-4 border-b">Orang 1</th>
-                            <th class="p-4 border-b">Orang 2</th>
+                            <th class="p-4 border-b">Suami</th>
+                            <th class="p-4 border-b">Istri</th>
                             <th class="p-4 border-b text-center">Status</th>
                         </tr>
                     </thead>
@@ -119,7 +151,6 @@
 
         <!-- Ringkasan Detail -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-            <!-- Card Libur Bersama -->
             <div class="bg-white rounded-2xl shadow-lg border border-green-100 overflow-hidden">
                 <div class="bg-gradient-to-r from-green-500 to-emerald-600 p-4 text-center text-white">
                     <h2 class="text-sm font-bold uppercase tracking-wider">Libur Bersama</h2>
@@ -132,7 +163,6 @@
                 </div>
             </div>
 
-            <!-- Card Shift Sama -->
             <div class="bg-white rounded-2xl shadow-lg border border-amber-100 overflow-hidden">
                 <div class="bg-gradient-to-r from-amber-500 to-orange-600 p-4 text-center text-white">
                     <h2 class="text-sm font-bold uppercase tracking-wider">Shift Kerja Sama</h2>
@@ -148,27 +178,65 @@
         
         <div class="mt-8 flex flex-wrap justify-center gap-4">
             <button onclick="resetJadwal()" class="px-6 py-3 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 rounded-xl shadow-sm transition font-bold flex items-center gap-2">
-                <span>🔄</span> Reset Log
+                <span>🔄</span> Reset Log Bulan Ini
             </button>
             <button onclick="window.print()" class="px-6 py-3 bg-slate-800 hover:bg-slate-900 text-white rounded-xl shadow-lg transition font-bold flex items-center gap-2">
                 <span>📄</span> Simpan/Cetak
             </button>
         </div>
+
+        <footer class="mt-12 text-center">
+            <p class="text-slate-400 text-sm font-medium italic">
+                idea by <span class="text-pink-500 not-italic font-bold">Wahyu Angga</span>
+            </p>
+        </footer>
     </div>
 
     <div id="toast">Log jadwal tersimpan! ✅</div>
 
     <script>
-        const daysInMonth = 31;
         const liburCodes = ['L', 'PH', 'C'];
         const kerjaCodes = ['P', 'S', 'M'];
-        const STORAGE_KEY = 'log_jadwal_pasangan_data_v2';
+        const BASE_STORAGE_KEY = 'schedule_us_data_';
 
-        let scheduleData = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
+        let currentMonth = new Date().getMonth();
+        let currentYear = new Date().getFullYear();
+        let scheduleData = {};
+
+        function initPeriod() {
+            const monthSelect = document.getElementById('monthSelect');
+            const yearSelect = document.getElementById('yearSelect');
+            
+            monthSelect.value = currentMonth;
+            
+            for (let y = currentYear - 1; y <= currentYear + 1; y++) {
+                const opt = document.createElement('option');
+                opt.value = y;
+                opt.text = y;
+                yearSelect.appendChild(opt);
+            }
+            yearSelect.value = currentYear;
+
+            checkReminder();
+            loadData();
+        }
+
+        function changePeriod() {
+            currentMonth = parseInt(document.getElementById('monthSelect').value);
+            currentYear = parseInt(document.getElementById('yearSelect').value);
+            loadData();
+        }
+
+        function loadData() {
+            const key = BASE_STORAGE_KEY + currentMonth + '_' + currentYear;
+            scheduleData = JSON.parse(localStorage.getItem(key)) || {};
+            initTable();
+        }
 
         function initTable() {
             const tbody = document.getElementById('scheduleBody');
             tbody.innerHTML = '';
+            const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
 
             for (let i = 1; i <= daysInMonth; i++) {
                 const valH = scheduleData[`h-${i}`] || '';
@@ -197,7 +265,6 @@
                     </td>
                 `;
                 tbody.appendChild(row);
-                
                 updateVisuals(i);
             }
             updateSummary();
@@ -209,7 +276,8 @@
             input.value = upperVal;
 
             scheduleData[`${person}-${day}`] = upperVal;
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(scheduleData));
+            const key = BASE_STORAGE_KEY + currentMonth + '_' + currentYear;
+            localStorage.setItem(key, JSON.stringify(scheduleData));
 
             updateVisuals(day);
             updateSummary();
@@ -219,6 +287,8 @@
         function updateVisuals(day) {
             const inputH = document.getElementById(`h-${day}`);
             const inputW = document.getElementById(`w-${day}`);
+            if (!inputH || !inputW) return;
+
             const valH = inputH.value.toUpperCase();
             const valW = inputW.value.toUpperCase();
             const statusCell = document.getElementById(`status-${day}`);
@@ -255,6 +325,7 @@
             let kerjaCount = 0;
             let liburDates = [];
             let kerjaDates = [];
+            const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
 
             for (let i = 1; i <= daysInMonth; i++) {
                 const valH = (scheduleData[`h-${i}`] || '').toUpperCase();
@@ -287,39 +358,38 @@
                 : '<span class="text-slate-400 italic text-xs">Belum ada shift kerja yang sama...</span>';
         }
 
+        function checkReminder() {
+            const today = new Date();
+            const date = today.getDate();
+            if (date >= 25) {
+                document.getElementById('reminderBox').classList.remove('hidden');
+            }
+        }
+
         function searchDate() {
             const input = document.getElementById('searchInput');
             const day = parseInt(input.value);
+            const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
             
-            if (isNaN(day) || day < 1 || day > 31) {
-                showToast("Masukkan tanggal antara 1 - 31! ⚠️");
+            if (isNaN(day) || day < 1 || day > daysInMonth) {
+                showToast(`Masukkan tanggal valid (1 - ${daysInMonth})! ⚠️`);
                 return;
             }
             
             goToDate(day);
-            
-            // Mengosongkan input setelah pencarian berhasil
             input.value = '';
         }
 
         function goToDate(day) {
             const row = document.getElementById(`row-${day}`);
             if (row) {
-                // Hapus highlight sebelumnya
                 document.querySelectorAll('.search-highlight').forEach(el => el.classList.remove('search-highlight'));
-                
-                // Scroll ke baris target
                 row.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                
-                // Tambahkan efek highlight
                 row.classList.add('search-highlight');
-                
-                // Fokus ke input suami pada tanggal tersebut
                 document.getElementById(`h-${day}`).focus();
             }
         }
 
-        // Jalankan pencarian saat menekan tombol Enter
         document.getElementById('searchInput').addEventListener('keypress', function (e) {
             if (e.key === 'Enter') {
                 searchDate();
@@ -336,15 +406,18 @@
         }
 
         function resetJadwal() {
-            const modal = confirm('Hapus semua log jadwal? Data tidak bisa dikembalikan.');
+            const modal = confirm('Hapus semua log jadwal bulan ini di Schedule•Us?');
             if(modal) {
-                localStorage.removeItem(STORAGE_KEY);
+                const key = BASE_STORAGE_KEY + currentMonth + '_' + currentYear;
+                localStorage.removeItem(key);
                 scheduleData = {};
                 initTable();
             }
         }
 
-        window.onload = initTable;
+        window.onload = initPeriod;
     </script>
 </body>
 </html>
+
+```
