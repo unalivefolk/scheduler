@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -21,13 +22,25 @@
         .shift-L, .shift-PH, .shift-C { background-color: #fee2e2; color: #991b1b; border-color: #ef4444; } /* Libur */
         
         .match-libur {
-            background-color: #f0fdf4;
+            background-color: #f0fdf4 !important;
             border-left: 4px solid #22c55e;
         }
 
         .match-kerja {
-            background-color: #fffbeb;
+            background-color: #fffbeb !important;
             border-left: 4px solid #f59e0b;
+        }
+
+        .search-highlight {
+            animation: highlight-pulse 2s ease-in-out;
+            background-color: #ede9fe !important; /* Ungu muda untuk pencarian */
+            outline: 2px solid #8b5cf6;
+        }
+
+        @keyframes highlight-pulse {
+            0% { background-color: #ddd6fe; }
+            50% { background-color: #a78bfa; }
+            100% { background-color: transparent; }
         }
         
         @media (max-width: 640px) {
@@ -48,7 +61,7 @@
             border-radius: 8px;
             padding: 16px;
             position: fixed;
-            z-index: 20;
+            z-index: 50;
             left: 50%;
             bottom: 30px;
         }
@@ -64,9 +77,19 @@
 
     <div class="max-w-4xl mx-auto px-4 py-8">
         <header class="text-center mb-8">
-            <h1 class="text-3xl font-bold text-pink-600">Scheduler</h1>
+            <h1 class="text-3xl font-bold text-pink-600">Schedule•Us</h1>
             <p class="text-slate-600 mt-2 text-sm sm:text-base">Mencatat dan mencocokkan jadwal shift berdua</p>
         </header>
+
+        <!-- Fitur Pencarian -->
+        <div class="mb-6 bg-white p-4 rounded-2xl shadow-sm border border-slate-200 flex flex-col sm:flex-row gap-4 items-center">
+            <div class="relative flex-1 w-full">
+                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">🔍</span>
+                <input type="number" id="searchInput" min="1" max="31" placeholder="Cari tanggal (1-31)..." 
+                    class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-pink-400 focus:outline-none transition">
+            </div>
+            <button onclick="searchDate()" class="w-full sm:w-auto px-6 py-2 bg-pink-500 hover:bg-pink-600 text-white font-bold rounded-xl transition">Cari</button>
+        </div>
 
         <!-- Keterangan Kode -->
         <div class="bg-white p-4 rounded-xl shadow-sm mb-6 flex flex-wrap justify-center gap-4 text-xs sm:text-sm font-medium border border-slate-200">
@@ -79,7 +102,7 @@
         <!-- Tabel Jadwal -->
         <div class="bg-white rounded-2xl shadow-xl overflow-hidden border border-slate-200 mb-8">
             <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse">
+                <table class="w-full text-left border-collapse" id="mainTable">
                     <thead>
                         <tr class="bg-slate-100 text-slate-700 uppercase text-[10px] sm:text-xs tracking-wider">
                             <th class="p-4 border-b">Tgl</th>
@@ -191,7 +214,7 @@
 
             updateVisuals(day);
             updateSummary();
-            showToast();
+            showToast("Log jadwal tersimpan! ✅");
         }
 
         function updateVisuals(day) {
@@ -254,17 +277,60 @@
             const kerjaDiv = document.getElementById('kerjaDateList');
 
             liburDiv.innerHTML = liburDates.length > 0 
-                ? liburDates.map(d => `<span class="px-2 py-1 bg-green-100 text-green-700 text-xs font-bold rounded border border-green-200 shadow-sm">Tgl ${d}</span>`).join('')
+                ? liburDates.map(d => `<button onclick="goToDate(${d})" class="px-2 py-1 bg-green-100 text-green-700 text-xs font-bold rounded border border-green-200 shadow-sm hover:bg-green-200 transition">Tgl ${d}</button>`).join('')
                 : '<span class="text-slate-400 italic text-xs">Belum ada hari libur bersama...</span>';
 
             kerjaDiv.innerHTML = kerjaDates.length > 0 
-                ? kerjaDates.map(d => `<span class="px-2 py-1 bg-amber-100 text-amber-700 text-xs font-bold rounded border border-amber-200 shadow-sm">Tgl ${d}</span>`).join('')
+                ? kerjaDates.map(d => {
+                    const tglOnly = d.split(' ')[0];
+                    return `<button onclick="goToDate(${tglOnly})" class="px-2 py-1 bg-amber-100 text-amber-700 text-xs font-bold rounded border border-amber-200 shadow-sm hover:bg-amber-200 transition">Tgl ${d}</button>`;
+                }).join('')
                 : '<span class="text-slate-400 italic text-xs">Belum ada shift kerja yang sama...</span>';
         }
 
+        function searchDate() {
+            const input = document.getElementById('searchInput');
+            const day = parseInt(input.value);
+            
+            if (isNaN(day) || day < 1 || day > 31) {
+                showToast("Masukkan tanggal antara 1 - 31! ⚠️");
+                return;
+            }
+            
+            goToDate(day);
+            
+            // Mengosongkan input setelah pencarian berhasil
+            input.value = '';
+        }
+
+        function goToDate(day) {
+            const row = document.getElementById(`row-${day}`);
+            if (row) {
+                // Hapus highlight sebelumnya
+                document.querySelectorAll('.search-highlight').forEach(el => el.classList.remove('search-highlight'));
+                
+                // Scroll ke baris target
+                row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                
+                // Tambahkan efek highlight
+                row.classList.add('search-highlight');
+                
+                // Fokus ke input suami pada tanggal tersebut
+                document.getElementById(`h-${day}`).focus();
+            }
+        }
+
+        // Jalankan pencarian saat menekan tombol Enter
+        document.getElementById('searchInput').addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                searchDate();
+            }
+        });
+
         let toastTimeout;
-        function showToast() {
+        function showToast(msg) {
             const toast = document.getElementById("toast");
+            toast.innerText = msg;
             toast.className = "show";
             clearTimeout(toastTimeout);
             toastTimeout = setTimeout(() => { toast.className = toast.className.replace("show", ""); }, 3000);
@@ -283,3 +349,5 @@
     </script>
 </body>
 </html>
+
+```
