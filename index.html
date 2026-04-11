@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Schedule•Us</title>
+    <title>Schedule•Us ❤️</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .shift-input {
@@ -115,7 +115,7 @@
                 width: 35px !important;
                 height: 35px !important;
                 font-size: 12px !important;
-                background-color: transparent !important; /* Agar warna asli P/S/M/L tetap terlihat, pastikan browser setting 'Print Background Graphics' aktif */
+                background-color: transparent !important;
             }
             table th, table td {
                 padding: 6px !important;
@@ -141,7 +141,7 @@
 
     <div class="max-w-4xl mx-auto px-4 py-8">
         <header class="text-center mb-6">
-            <h1 class="text-4xl font-black text-pink-600 tracking-tight">Schedule•Us</h1>
+            <h1 class="text-4xl font-black text-pink-600 tracking-tight">Schedule•Us ❤️</h1>
             <p class="text-slate-600 mt-2 text-sm sm:text-base italic">"Menyelaraskan Jadwal Bersama."</p>
         </header>
 
@@ -195,7 +195,7 @@
             <div class="flex items-center gap-1"><span class="w-3 h-3 rounded shift-P border inline-block"></span> P: Pagi</div>
             <div class="flex items-center gap-1"><span class="w-3 h-3 rounded shift-S border inline-block"></span> S: Siang</div>
             <div class="flex items-center gap-1"><span class="w-3 h-3 rounded shift-M border inline-block"></span> M: Malam</div>
-            <div class="flex items-center gap-1"><span class="w-3 h-3 rounded shift-L border inline-block"></span> L/PH: Libur</div>
+            <div class="flex items-center gap-1"><span class="w-3 h-3 rounded shift-L border inline-block"></span> L/PH/C: Libur</div>
         </div>
 
         <!-- Tabel Jadwal -->
@@ -225,7 +225,7 @@
                     <p id="liburCount" class="text-2xl font-black">0</p>
                 </div>
                 <div class="p-3">
-                    <div id="liburDateList" class="flex flex-wrap gap-1 min-h-[30px]">
+                    <div id="liburDateList" class="flex flex-wrap gap-1.5 min-h-[30px]">
                         <span class="text-slate-400 italic text-[10px]">Kosong</span>
                     </div>
                 </div>
@@ -237,7 +237,7 @@
                     <p id="kerjaCount" class="text-2xl font-black">0</p>
                 </div>
                 <div class="p-3">
-                    <div id="kerjaDateList" class="flex flex-wrap gap-1 min-h-[30px]">
+                    <div id="kerjaDateList" class="flex flex-wrap gap-1.5 min-h-[30px]">
                         <span class="text-slate-400 italic text-[10px]">Kosong</span>
                     </div>
                 </div>
@@ -392,8 +392,8 @@
         function updateSummary() {
             let liburCount = 0;
             let kerjaCount = 0;
-            let liburDates = [];
-            let kerjaDates = [];
+            let liburEntries = [];
+            let kerjaEntries = [];
             const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
 
             for (let i = 1; i <= daysInMonth; i++) {
@@ -402,10 +402,13 @@
                 
                 if (liburCodes.includes(valH) && liburCodes.includes(valW)) {
                     liburCount++;
-                    liburDates.push(i);
+                    // Jika kode libur sama (misal sama-sama PH), tampilkan satu saja
+                    // Jika beda (misal satu L satu PH), tampilkan keduanya
+                    const label = valH === valW ? valH : `${valH}&${valW}`;
+                    liburEntries.push({ day: i, label: label });
                 } else if (valH !== '' && valH === valW && kerjaCodes.includes(valH)) {
                     kerjaCount++;
-                    kerjaDates.push(i);
+                    kerjaEntries.push({ day: i, label: valH });
                 }
             }
 
@@ -415,12 +418,22 @@
             const liburDiv = document.getElementById('liburDateList');
             const kerjaDiv = document.getElementById('kerjaDateList');
 
-            liburDiv.innerHTML = liburDates.length > 0 
-                ? liburDates.map(d => `<span class="px-1.5 py-0.5 bg-green-100 text-green-700 text-[10px] font-bold rounded border border-green-200">${d}</span>`).join('')
+            liburDiv.innerHTML = liburEntries.length > 0 
+                ? liburEntries.map(e => `
+                    <div class="flex flex-col items-center bg-green-100 border border-green-200 rounded px-1.5 py-0.5">
+                        <span class="text-green-700 text-[10px] font-bold">Tgl ${e.day}</span>
+                        <span class="text-green-600 text-[8px] uppercase">${e.label}</span>
+                    </div>
+                `).join('')
                 : '<span class="text-slate-400 italic text-[10px]">Kosong</span>';
 
-            kerjaDiv.innerHTML = kerjaDates.length > 0 
-                ? kerjaDates.map(d => `<span class="px-1.5 py-0.5 bg-amber-100 text-amber-700 text-[10px] font-bold rounded border border-amber-200">${d}</span>`).join('')
+            kerjaDiv.innerHTML = kerjaEntries.length > 0 
+                ? kerjaEntries.map(e => `
+                    <div class="flex flex-col items-center bg-amber-100 border border-amber-200 rounded px-1.5 py-0.5">
+                        <span class="text-amber-700 text-[10px] font-bold">Tgl ${e.day}</span>
+                        <span class="text-amber-600 text-[8px] uppercase">Shift ${e.label}</span>
+                    </div>
+                `).join('')
                 : '<span class="text-slate-400 italic text-[10px]">Kosong</span>';
         }
 
