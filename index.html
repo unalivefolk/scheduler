@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Schedule•Us</title>
+    <title>Schedule•Us ❤️</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         .shift-input {
@@ -70,18 +70,86 @@
         }
         @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
         @keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
+
+        /* Optimasi Cetak / PDF */
+        @media print {
+            @page {
+                size: A4;
+                margin: 1cm;
+            }
+            body {
+                background: white !important;
+                padding: 0 !important;
+            }
+            .no-print, #reminderBox, .mt-8, #searchInput, button, select {
+                display: none !important;
+            }
+            .max-w-4xl {
+                max-width: 100% !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+            header h1 {
+                font-size: 24px !important;
+                margin-bottom: 5px !important;
+            }
+            header p {
+                font-size: 12px !important;
+                margin-top: 0 !important;
+            }
+            .bg-pink-50 {
+                background: transparent !important;
+                border: none !important;
+                padding: 5px !important;
+                margin-bottom: 10px !important;
+            }
+            #print-period-title {
+                display: block !important;
+                font-weight: bold;
+                font-size: 18px;
+                text-align: center;
+                margin-bottom: 10px;
+            }
+            .shift-input {
+                border: 1px solid #ccc !important;
+                width: 35px !important;
+                height: 35px !important;
+                font-size: 12px !important;
+                background-color: transparent !important; /* Agar warna asli P/S/M/L tetap terlihat, pastikan browser setting 'Print Background Graphics' aktif */
+            }
+            table th, table td {
+                padding: 6px !important;
+                font-size: 11px !important;
+            }
+            .grid {
+                display: grid !important;
+                grid-template-cols: 1fr 1fr !important;
+                gap: 10px !important;
+            }
+            .shadow-xl, .shadow-lg, .shadow-sm {
+                box-shadow: none !important;
+                border: 1px solid #eee !important;
+            }
+            footer {
+                margin-top: 15px !important;
+            }
+        }
+        #print-period-title { display: none; }
     </style>
 </head>
 <body class="bg-slate-50 min-h-screen pb-10">
 
     <div class="max-w-4xl mx-auto px-4 py-8">
         <header class="text-center mb-6">
-            <h1 class="text-4xl font-black text-pink-600 tracking-tight">Schedule•Us</h1>
+            <h1 class="text-4xl font-black text-pink-600 tracking-tight">Schedule•Us ❤️</h1>
             <p class="text-slate-600 mt-2 text-sm sm:text-base italic">"Menyelaraskan Jadwal Bersama."</p>
         </header>
 
+        <!-- Judul Khusus Saat Print -->
+        <div id="print-period-title"></div>
+
         <!-- Pemilih Bulan dan Tahun -->
-        <div class="mb-6 flex flex-wrap justify-center gap-3 bg-pink-50 p-4 rounded-2xl border border-pink-100 shadow-sm">
+        <div class="mb-6 flex flex-wrap justify-center gap-3 bg-pink-50 p-4 rounded-2xl border border-pink-100 shadow-sm no-print">
             <select id="monthSelect" onchange="changePeriod()" class="bg-white border border-pink-200 rounded-lg px-3 py-2 text-pink-700 font-bold focus:outline-none focus:ring-2 focus:ring-pink-400">
                 <option value="0">Januari</option>
                 <option value="1">Februari</option>
@@ -101,8 +169,8 @@
             </select>
         </div>
 
-        <!-- Fitur Pencarian -->
-        <div class="mb-6 bg-white p-4 rounded-2xl shadow-sm border border-slate-200 flex flex-col sm:flex-row gap-4 items-center">
+        <!-- Fitur Pencarian (Hidden on Print) -->
+        <div class="mb-6 bg-white p-4 rounded-2xl shadow-sm border border-slate-200 flex flex-col sm:flex-row gap-4 items-center no-print">
             <div class="relative flex-1 w-full">
                 <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">🔍</span>
                 <input type="number" id="searchInput" min="1" max="31" placeholder="Cari tanggal (1-31)..." 
@@ -111,7 +179,7 @@
             <button onclick="searchDate()" class="w-full sm:w-auto px-6 py-2 bg-pink-500 hover:bg-pink-600 text-white font-bold rounded-xl transition">Cari</button>
         </div>
 
-        <!-- Pengingat Update (Hidden by Default) -->
+        <!-- Pengingat Update (Hidden on Print) -->
         <div id="reminderBox" class="hidden mb-6 bg-amber-50 border-l-4 border-amber-400 p-4 rounded-r-xl shadow-sm">
             <div class="flex items-center">
                 <div class="flex-shrink-0 text-amber-400 text-xl">⚠️</div>
@@ -127,11 +195,11 @@
             <div class="flex items-center gap-1"><span class="w-3 h-3 rounded shift-P border inline-block"></span> P: Pagi</div>
             <div class="flex items-center gap-1"><span class="w-3 h-3 rounded shift-S border inline-block"></span> S: Siang</div>
             <div class="flex items-center gap-1"><span class="w-3 h-3 rounded shift-M border inline-block"></span> M: Malam</div>
-            <div class="flex items-center gap-1"><span class="w-3 h-3 rounded shift-L border inline-block"></span> L/PH/C: Libur</div>
+            <div class="flex items-center gap-1"><span class="w-3 h-3 rounded shift-L border inline-block"></span> L/PH: Libur</div>
         </div>
 
         <!-- Tabel Jadwal -->
-        <div class="bg-white rounded-2xl shadow-xl overflow-hidden border border-slate-200 mb-8">
+        <div class="bg-white rounded-2xl shadow-xl overflow-hidden border border-slate-200 mb-6">
             <div class="overflow-x-auto">
                 <table class="w-full text-left border-collapse" id="mainTable">
                     <thead>
@@ -152,36 +220,36 @@
         <!-- Ringkasan Detail -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
             <div class="bg-white rounded-2xl shadow-lg border border-green-100 overflow-hidden">
-                <div class="bg-gradient-to-r from-green-500 to-emerald-600 p-4 text-center text-white">
-                    <h2 class="text-sm font-bold uppercase tracking-wider">Libur Bersama</h2>
-                    <p id="liburCount" class="text-4xl font-black my-1">0</p>
+                <div class="bg-gradient-to-r from-green-500 to-emerald-600 p-3 text-center text-white">
+                    <h2 class="text-[10px] font-bold uppercase tracking-wider">Libur Bersama</h2>
+                    <p id="liburCount" class="text-2xl font-black">0</p>
                 </div>
-                <div class="p-4">
-                    <div id="liburDateList" class="flex flex-wrap gap-2 min-h-[40px]">
-                        <span class="text-slate-400 italic text-xs">Belum ada hari libur bersama...</span>
+                <div class="p-3">
+                    <div id="liburDateList" class="flex flex-wrap gap-1 min-h-[30px]">
+                        <span class="text-slate-400 italic text-[10px]">Kosong</span>
                     </div>
                 </div>
             </div>
 
             <div class="bg-white rounded-2xl shadow-lg border border-amber-100 overflow-hidden">
-                <div class="bg-gradient-to-r from-amber-500 to-orange-600 p-4 text-center text-white">
-                    <h2 class="text-sm font-bold uppercase tracking-wider">Shift Kerja Sama</h2>
-                    <p id="kerjaCount" class="text-4xl font-black my-1">0</p>
+                <div class="bg-gradient-to-r from-amber-500 to-orange-600 p-3 text-center text-white">
+                    <h2 class="text-[10px] font-bold uppercase tracking-wider">Shift Kerja Sama</h2>
+                    <p id="kerjaCount" class="text-2xl font-black">0</p>
                 </div>
-                <div class="p-4">
-                    <div id="kerjaDateList" class="flex flex-wrap gap-2 min-h-[40px]">
-                        <span class="text-slate-400 italic text-xs">Belum ada shift kerja yang sama...</span>
+                <div class="p-3">
+                    <div id="kerjaDateList" class="flex flex-wrap gap-1 min-h-[30px]">
+                        <span class="text-slate-400 italic text-[10px]">Kosong</span>
                     </div>
                 </div>
             </div>
         </div>
         
-        <div class="mt-8 flex flex-wrap justify-center gap-4">
+        <div class="mt-8 flex flex-wrap justify-center gap-4 no-print">
             <button onclick="resetJadwal()" class="px-6 py-3 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 rounded-xl shadow-sm transition font-bold flex items-center gap-2">
-                <span>🔄</span> Reset Log Bulan Ini
+                <span>🔄</span> Reset Bulan Ini
             </button>
-            <button onclick="window.print()" class="px-6 py-3 bg-slate-800 hover:bg-slate-900 text-white rounded-xl shadow-lg transition font-bold flex items-center gap-2">
-                <span>📄</span> Simpan/Cetak
+            <button onclick="prepareAndPrint()" class="px-6 py-3 bg-slate-800 hover:bg-slate-900 text-white rounded-xl shadow-lg transition font-bold flex items-center gap-2">
+                <span>📄</span> Simpan PDF / Cetak
             </button>
         </div>
 
@@ -192,7 +260,7 @@
         </footer>
     </div>
 
-    <div id="toast">Log jadwal tersimpan! ✅</div>
+    <div id="toast">Log tersimpan!</div>
 
     <script>
         const liburCodes = ['L', 'PH', 'C'];
@@ -209,6 +277,7 @@
             
             monthSelect.value = currentMonth;
             
+            yearSelect.innerHTML = '';
             for (let y = currentYear - 1; y <= currentYear + 1; y++) {
                 const opt = document.createElement('option');
                 opt.value = y;
@@ -247,20 +316,20 @@
                 row.className = "border-b hover:bg-slate-50 transition";
                 
                 row.innerHTML = `
-                    <td class="p-4 font-bold text-slate-400 text-sm">${i}</td>
-                    <td class="p-2 sm:p-4">
+                    <td class="p-3 font-bold text-slate-400 text-xs">${i}</td>
+                    <td class="p-2">
                         <input type="text" maxlength="2" placeholder="-" 
                             class="shift-input border border-slate-200" 
                             value="${valH}"
                             oninput="saveAndRefresh(${i}, 'h', this.value)" id="h-${i}">
                     </td>
-                    <td class="p-2 sm:p-4">
+                    <td class="p-2">
                         <input type="text" maxlength="2" placeholder="-" 
                             class="shift-input border border-slate-200" 
                             value="${valW}"
                             oninput="saveAndRefresh(${i}, 'w', this.value)" id="w-${i}">
                     </td>
-                    <td class="p-2 sm:p-4 text-center" id="status-${i}">
+                    <td class="p-2 text-center" id="status-${i}">
                         <span class="text-slate-300">-</span>
                     </td>
                 `;
@@ -281,7 +350,7 @@
 
             updateVisuals(day);
             updateSummary();
-            showToast("Log jadwal tersimpan! ✅");
+            showToast("Log tersimpan! ✅");
         }
 
         function updateVisuals(day) {
@@ -310,13 +379,13 @@
             row.classList.remove('match-libur', 'match-kerja');
 
             if (isHLibur && isWLibur) {
-                statusCell.innerHTML = '<span class="px-2 py-1 bg-green-500 text-white text-[10px] sm:text-xs rounded-full font-bold shadow-sm whitespace-nowrap">👩‍❤️‍👨 LIBUR BERSAMA</span>';
+                statusCell.innerHTML = '<span class="px-2 py-1 bg-green-500 text-white text-[9px] sm:text-[10px] rounded-full font-bold shadow-sm whitespace-nowrap">👩‍❤️‍👨 LIBUR BERSAMA</span>';
                 row.classList.add('match-libur');
             } else if (valH !== '' && valH === valW && kerjaCodes.includes(valH)) {
-                statusCell.innerHTML = '<span class="px-2 py-1 bg-amber-500 text-white text-[10px] sm:text-xs rounded-full font-bold shadow-sm whitespace-nowrap">🤝 SHIFT SAMA</span>';
+                statusCell.innerHTML = '<span class="px-2 py-1 bg-amber-500 text-white text-[9px] sm:text-[10px] rounded-full font-bold shadow-sm whitespace-nowrap">🤝 SHIFT SAMA</span>';
                 row.classList.add('match-kerja');
             } else {
-                statusCell.innerHTML = '<span class="text-slate-300 text-xs">-</span>';
+                statusCell.innerHTML = '<span class="text-slate-300 text-[10px]">-</span>';
             }
         }
 
@@ -336,7 +405,7 @@
                     liburDates.push(i);
                 } else if (valH !== '' && valH === valW && kerjaCodes.includes(valH)) {
                     kerjaCount++;
-                    kerjaDates.push(`${i} (${valH})`);
+                    kerjaDates.push(i);
                 }
             }
 
@@ -347,15 +416,12 @@
             const kerjaDiv = document.getElementById('kerjaDateList');
 
             liburDiv.innerHTML = liburDates.length > 0 
-                ? liburDates.map(d => `<button onclick="goToDate(${d})" class="px-2 py-1 bg-green-100 text-green-700 text-xs font-bold rounded border border-green-200 shadow-sm hover:bg-green-200 transition">Tgl ${d}</button>`).join('')
-                : '<span class="text-slate-400 italic text-xs">Belum ada hari libur bersama...</span>';
+                ? liburDates.map(d => `<span class="px-1.5 py-0.5 bg-green-100 text-green-700 text-[10px] font-bold rounded border border-green-200">${d}</span>`).join('')
+                : '<span class="text-slate-400 italic text-[10px]">Kosong</span>';
 
             kerjaDiv.innerHTML = kerjaDates.length > 0 
-                ? kerjaDates.map(d => {
-                    const tglOnly = d.split(' ')[0];
-                    return `<button onclick="goToDate(${tglOnly})" class="px-2 py-1 bg-amber-100 text-amber-700 text-xs font-bold rounded border border-amber-200 shadow-sm hover:bg-amber-200 transition">Tgl ${d}</button>`;
-                }).join('')
-                : '<span class="text-slate-400 italic text-xs">Belum ada shift kerja yang sama...</span>';
+                ? kerjaDates.map(d => `<span class="px-1.5 py-0.5 bg-amber-100 text-amber-700 text-[10px] font-bold rounded border border-amber-200">${d}</span>`).join('')
+                : '<span class="text-slate-400 italic text-[10px]">Kosong</span>';
         }
 
         function checkReminder() {
@@ -372,10 +438,9 @@
             const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
             
             if (isNaN(day) || day < 1 || day > daysInMonth) {
-                showToast(`Masukkan tanggal valid (1 - ${daysInMonth})! ⚠️`);
+                showToast(`Pilih 1 - ${daysInMonth}! ⚠️`);
                 return;
             }
-            
             goToDate(day);
             input.value = '';
         }
@@ -390,11 +455,12 @@
             }
         }
 
-        document.getElementById('searchInput').addEventListener('keypress', function (e) {
-            if (e.key === 'Enter') {
-                searchDate();
-            }
-        });
+        function prepareAndPrint() {
+            const monthName = document.getElementById('monthSelect').options[document.getElementById('monthSelect').selectedIndex].text;
+            const yearVal = document.getElementById('yearSelect').value;
+            document.getElementById('print-period-title').innerText = `Jadwal Periode: ${monthName} ${yearVal}`;
+            window.print();
+        }
 
         let toastTimeout;
         function showToast(msg) {
@@ -406,8 +472,7 @@
         }
 
         function resetJadwal() {
-            const modal = confirm('Hapus semua log jadwal bulan ini di Schedule•Us?');
-            if(modal) {
+            if(confirm('Hapus log bulan ini?')) {
                 const key = BASE_STORAGE_KEY + currentMonth + '_' + currentYear;
                 localStorage.removeItem(key);
                 scheduleData = {};
