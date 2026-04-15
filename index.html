@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Schedule•Us Pro</title>
+    <title>Schedule•Us</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
@@ -23,11 +23,31 @@
             border: 2px solid #e2e8f0;
             transition: all 0.2s;
             background: transparent;
+            color: #1e293b; /* Warna teks mode terang */
+        }
+        .note-input::placeholder {
+            color: #94a3b8;
+            opacity: 0.7;
         }
         .note-input:focus {
             outline: none;
             border-color: #ec4899;
             background-color: #fff1f2;
+        }
+
+        /* Perbaikan visibilitas Mode Gelap */
+        @media (prefers-color-scheme: dark) {
+            .note-input {
+                color: #f1f5f9; /* Putih/abu terang agar terlihat di dark mode */
+                border-color: #334155;
+            }
+            .note-input:focus {
+                background-color: rgba(236, 72, 153, 0.1);
+                border-color: #ec4899;
+            }
+            .note-input::placeholder {
+                color: #64748b;
+            }
         }
 
         @media print {
@@ -48,11 +68,11 @@
                 </div>
                 <div>
                     <h1 class="text-xl font-extrabold tracking-tight leading-none">Schedule•Us</h1>
-                    <p class="text-[10px] text-pink-500 font-bold uppercase tracking-widest mt-1 no-print">Secure & Restricted</p>
+                    <p class="text-[10px] text-pink-500 font-bold uppercase tracking-widest mt-1 no-print">By Masway</p>
                 </div>
             </div>
             <div class="flex items-center gap-3 no-print">
-                <button onclick="window.print()" class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition text-slate-500">
+                <button onclick="window.print()" class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition text-slate-500" title="Cetak Jadwal">
                     <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>
                 </button>
                 <div class="flex items-center gap-2 px-3 py-1 bg-slate-100 dark:bg-slate-800 rounded-full">
@@ -64,11 +84,11 @@
     </nav>
 
     <main class="max-w-4xl mx-auto px-4 py-6 print-container">
-        <!-- Peringatan Keamanan jika terjadi error -->
+        <!-- Peringatan Keamanan -->
         <div id="securityAlert" class="hidden mb-6 p-4 bg-rose-100 border border-rose-200 text-rose-700 rounded-2xl text-sm font-medium no-print">
             <div class="flex items-center gap-2">
                 <svg class="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
-                <p id="securityAlertMsg">Akses ditolak. Pastikan domain ini sudah terdaftar di Google Cloud Console.</p>
+                <p id="securityAlertMsg">Akses ditolak. Periksa konfigurasi Firebase Anda.</p>
             </div>
         </div>
         
@@ -135,7 +155,7 @@
         </div>
     </main>
 
-    <!-- Modals (Picker & Reset) -->
+    <!-- Modals -->
     <div id="pickerModal" class="fixed inset-0 z-50 hidden flex-col items-end sm:items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm">
         <div class="modal-content bg-white dark:bg-slate-900 w-full max-w-sm rounded-[2.5rem] p-8 shadow-2xl">
             <div class="flex justify-between items-center mb-8">
@@ -254,7 +274,7 @@
                                 placeholder="Tulis rencana..." 
                                 onblur="window.saveNote(${d}, this.value)" 
                                 onkeypress="if(event.key==='Enter') this.blur()"
-                                class="note-input dark:text-slate-200 dark:border-slate-800">
+                                class="note-input">
                         </td>
                     </tr>
                 `;
@@ -319,7 +339,8 @@
         }
 
         window.changeMonth = (offset) => {
-            window.state.currentDate = new Date(window.state.currentDate.getFullYear(), window.state.currentDate.getMonth() + offset, 1);
+            const d = window.state.currentDate;
+            window.state.currentDate = new Date(d.getFullYear(), d.getMonth() + offset, 1);
             startSync();
         };
 
@@ -332,6 +353,7 @@
         window.closePicker = () => document.getElementById('pickerModal').classList.remove('modal-active');
 
         window.selectShift = async (val) => {
+            if (!window.state.user || !window.state.activeTarget) return;
             const { day, person } = window.state.activeTarget;
             const month = window.state.currentDate.getMonth();
             const year = window.state.currentDate.getFullYear();
@@ -340,13 +362,15 @@
         };
 
         window.openResetModal = () => {
-            document.getElementById('resetModalText').innerText = `Hapus semua data bulan ${document.getElementById('monthLabel').innerText}?`;
+            const mLabel = document.getElementById('monthLabel').innerText;
+            document.getElementById('resetModalText').innerText = `Hapus semua data bulan ${mLabel}?`;
             document.getElementById('resetModal').classList.add('modal-active');
         };
 
         window.closeResetModal = () => document.getElementById('resetModal').classList.remove('modal-active');
 
         window.executeReset = async () => {
+            if (!window.state.user) return;
             const month = window.state.currentDate.getMonth();
             const year = window.state.currentDate.getFullYear();
             await remove(ref(db, `schedules/${year}_${month}`));
@@ -361,8 +385,6 @@
                 target.classList.add('ring-4', 'ring-pink-500/30', 'bg-pink-50', 'dark:bg-pink-900/10');
             }
         };
-
-        startApp();
     </script>
 </body>
 </html>
