@@ -3,368 +3,376 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Schedule•Us</title>
+    <title>Schedule•Us Pro</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* Base Colors & Dark Mode Logic */
-        :root {
-            --bg-main: #f8fafc;
-            --bg-card: #ffffff;
-            --text-main: #1e293b;
-            --border-color: #e2e8f0;
-            --match-libur-bg: #f0fdf4;
-            --match-kerja-bg: #fffbeb;
-        }
-
-        @media (prefers-color-scheme: dark) {
-            :root {
-                --bg-main: #0f172a;
-                --bg-card: #1e293b;
-                --text-main: #f1f5f9;
-                --border-color: #334155;
-                /* Warna penanda lebih gelap & transparan agar tidak silau */
-                --match-libur-bg: rgba(6, 78, 59, 0.25); 
-                --match-kerja-bg: rgba(120, 53, 15, 0.25);
-            }
-            body { background-color: var(--bg-main) !important; color: var(--text-main); }
-            .bg-white { background-color: var(--bg-card) !important; }
-            .bg-slate-50 { background-color: var(--bg-main) !important; }
-            .bg-slate-100 { background-color: #334155 !important; }
-            .text-slate-600, .text-slate-400 { color: #94a3b8 !important; }
-            .text-slate-700 { color: #e2e8f0 !important; }
-            .border-slate-200, .border-slate-300 { border-color: var(--border-color) !important; }
-            input, select { background-color: #334155 !important; color: white !important; border-color: #475569 !important; }
-            .bg-pink-50 { background-color: #3d0a21 !important; border-color: #831843 !important; }
-            .text-pink-700 { color: #f9a8d4 !important; }
-        }
-
-        .shift-input {
-            width: 45px;
-            height: 45px;
-            text-align: center;
-            border-radius: 8px;
-            font-weight: bold;
-            transition: all 0.2s;
-            text-transform: uppercase;
-        }
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
         
-        /* Shift Colors */
-        .shift-P { background-color: #fef3c7; color: #92400e; border-color: #f59e0b; }
-        .shift-S { background-color: #dcfce7; color: #166534; border-color: #22c55e; }
-        .shift-M { background-color: #e0e7ff; color: #3730a3; border-color: #6366f1; }
-        .shift-L, .shift-PH, .shift-C { background-color: #fee2e2; color: #991b1b; border-color: #ef4444; }
-
-        @media (prefers-color-scheme: dark) {
-            .shift-P { background-color: #452e00; color: #fbbf24; border-color: #d97706; }
-            .shift-S { background-color: #064e3b; color: #6ee7b7; border-color: #059669; }
-            .shift-M { background-color: #1e1b4b; color: #a5b4fc; border-color: #4f46e5; }
-            .shift-L, .shift-PH, .shift-C { background-color: #450a0a; color: #fca5a5; border-color: #dc2626; }
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
         }
 
-        .match-libur { background-color: var(--match-libur-bg) !important; border-left: 4px solid #22c55e; }
-        .match-kerja { background-color: var(--match-kerja-bg) !important; border-left: 4px solid #f59e0b; }
-
-        .search-highlight {
-            animation: highlight-pulse 2s ease-in-out;
-            background-color: #ede9fe !important; 
-            outline: 2px solid #8b5cf6;
+        .modal-active {
+            display: flex !important;
+            animation: fadeIn 0.2s ease-out;
         }
 
-        @keyframes highlight-pulse {
-            0% { background-color: #ddd6fe; }
-            50% { background-color: #a78bfa; }
-            100% { background-color: transparent; }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
 
-        /* Print Logic */
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal-content {
+            animation: slideUp 0.3s ease-out;
+        }
+
+        /* Hide scrollbar for Chrome, Safari and Opera */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+
         @media print {
-            @page { size: A4; margin: 1cm; }
-            body { background: white !important; color: black !important; padding: 0 !important; }
-            :root { --bg-main: white; --bg-card: white; --text-main: black; --match-libur-bg: #f0fdf4; --match-kerja-bg: #fffbeb; }
-            .no-print, #reminderBox, .mt-8, #searchInput, button, select { display: none !important; }
-            .max-w-4xl { max-width: 100% !important; padding: 0 !important; margin: 0 !important; }
-            .bg-pink-50 { background: transparent !important; border: none !important; }
-            #print-period-title { display: block !important; font-weight: bold; font-size: 18px; text-align: center; margin-bottom: 10px; }
-            .shift-input { border: 1px solid #ccc !important; width: 35px !important; height: 35px !important; font-size: 12px !important; background-color: transparent !important; }
-            .grid { display: grid !important; grid-template-cols: 1fr 1fr !important; gap: 10px !important; }
-            footer { margin-top: 15px !important; }
+            .no-print { display: none !important; }
+            body { background: white; color: black; }
+            .print-container { width: 100% !important; max-width: none !important; margin: 0 !important; padding: 0 !important; }
+            .shadow-xl { box-shadow: none !important; }
+            .border { border: 1px solid #e2e8f0 !important; }
+            .bg-slate-50, .dark\:bg-slate-950 { background: white !important; }
+            .bg-white, .dark\:bg-slate-900 { background: white !important; }
         }
-        #print-period-title { display: none; }
     </style>
 </head>
-<body class="bg-slate-50 min-h-screen pb-10 transition-colors duration-300">
+<body class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 min-h-screen pb-20 transition-colors duration-300">
 
-    <div class="max-w-4xl mx-auto px-4 py-8">
-        <header class="text-center mb-6">
-            <h1 class="text-4xl font-black text-pink-600 tracking-tight">Schedule•Us</h1>
-            <p class="text-slate-600 mt-2 text-sm sm:text-base italic">"Menyelaraskan Jadwal Bersama."</p>
-        </header>
-
-        <div id="print-period-title"></div>
-
-        <div class="mb-6 flex flex-wrap justify-center gap-3 bg-pink-50 p-4 rounded-2xl border border-pink-100 shadow-sm no-print">
-            <select id="monthSelect" onchange="changePeriod()" class="bg-white border border-pink-200 rounded-lg px-3 py-2 text-pink-700 font-bold focus:outline-none focus:ring-2 focus:ring-pink-400">
-                <option value="0">Januari</option>
-                <option value="1">Februari</option>
-                <option value="2">Maret</option>
-                <option value="3">April</option>
-                <option value="4">Mei</option>
-                <option value="5">Juni</option>
-                <option value="6">Juli</option>
-                <option value="7">Agustus</option>
-                <option value="8">September</option>
-                <option value="9">Oktober</option>
-                <option value="10">November</option>
-                <option value="11">Desember</option>
-            </select>
-            <select id="yearSelect" onchange="changePeriod()" class="bg-white border border-pink-200 rounded-lg px-3 py-2 text-pink-700 font-bold focus:outline-none focus:ring-2 focus:ring-pink-400">
-            </select>
-        </div>
-
-        <div class="mb-6 bg-white p-4 rounded-2xl shadow-sm border border-slate-200 flex flex-col sm:flex-row gap-4 items-center no-print">
-            <div class="relative flex-1 w-full">
-                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">🔍</span>
-                <input type="number" id="searchInput" min="1" max="31" placeholder="Cari tanggal (1-31)..." 
-                    class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-pink-400 focus:outline-none transition">
+    <!-- Navbar -->
+    <nav class="sticky top-0 z-40 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 p-4">
+        <div class="max-w-4xl mx-auto flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <div class="bg-pink-500 p-2 rounded-xl shadow-lg shadow-pink-500/30">
+                    <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                </div>
+                <div>
+                    <h1 class="text-xl font-extrabold tracking-tight leading-none">Schedule•Us</h1>
+                    <p class="text-[10px] text-pink-500 font-bold uppercase tracking-widest mt-1 no-print">Cloud Synced</p>
+                </div>
             </div>
-            <button onclick="searchDate()" class="w-full sm:w-auto px-6 py-2 bg-pink-500 hover:bg-pink-600 text-white font-bold rounded-xl transition">Cari</button>
-        </div>
-
-        <div id="reminderBox" class="hidden mb-6 bg-amber-50 dark:bg-amber-900/30 border-l-4 border-amber-400 p-4 rounded-r-xl shadow-sm">
-            <div class="flex items-center">
-                <div class="flex-shrink-0 text-amber-500 text-xl">⚠️</div>
-                <div class="ml-3">
-                    <p class="text-sm text-amber-800 dark:text-amber-200 font-bold">Halo! Sudah akhir bulan nih.</p>
-                    <p class="text-xs text-amber-700 dark:text-amber-300">Yuk, update jadwal bulan berikutnya.</p>
+            <div class="flex items-center gap-3 no-print">
+                <button onclick="window.print()" class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition text-slate-500">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>
+                </button>
+                <div class="flex items-center gap-2 px-3 py-1 bg-slate-100 dark:bg-slate-800 rounded-full">
+                    <div id="statusIndicator" class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></div>
+                    <span id="statusText" class="text-[10px] font-bold uppercase tracking-wider">Syncing</span>
                 </div>
             </div>
         </div>
+    </nav>
 
-        <div class="bg-white p-4 rounded-xl shadow-sm mb-6 flex flex-wrap justify-center gap-4 text-xs sm:text-sm font-medium border border-slate-200">
-            <div class="flex items-center gap-1"><span class="w-3 h-3 rounded shift-P border inline-block"></span> P: Pagi</div>
-            <div class="flex items-center gap-1"><span class="w-3 h-3 rounded shift-S border inline-block"></span> S: Siang</div>
-            <div class="flex items-center gap-1"><span class="w-3 h-3 rounded shift-M border inline-block"></span> M: Malam</div>
-            <div class="flex items-center gap-1"><span class="w-3 h-3 rounded shift-L border inline-block"></span> L/PH/C: Libur</div>
-        </div>
+    <main class="max-w-4xl mx-auto px-4 py-6 print-container">
+        
+        <!-- Navigation -->
+        <section class="mb-6 flex flex-col md:flex-row gap-4 items-center justify-between no-print">
+            <div class="flex items-center gap-1 bg-white dark:bg-slate-900 p-1 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800">
+                <button onclick="changeMonth(-1)" class="p-2 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl transition">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" /></svg>
+                </button>
+                <span id="monthLabel" class="px-4 py-1 text-sm font-extrabold text-slate-700 dark:text-slate-200 min-w-[140px] text-center">Memuat...</span>
+                <button onclick="changeMonth(1)" class="p-2 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl transition">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" /></svg>
+                </button>
+            </div>
 
-        <div class="bg-white rounded-2xl shadow-xl overflow-hidden border border-slate-200 mb-6">
+            <div class="relative w-full md:w-64">
+                <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                <input type="number" id="searchInput" placeholder="Cari tanggal..." oninput="highlightRow(this.value)"
+                    class="w-full pl-10 pr-4 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl focus:ring-2 focus:ring-pink-500 focus:outline-none text-sm transition">
+            </div>
+        </section>
+
+        <!-- Stats -->
+        <section class="grid grid-cols-2 gap-4 mb-8">
+            <div class="bg-gradient-to-br from-emerald-500 to-teal-600 p-5 rounded-[2rem] shadow-lg shadow-emerald-500/20 text-white">
+                <p class="text-[10px] font-black uppercase tracking-widest opacity-80 mb-1">Libur Bersama</p>
+                <div id="statLibur" class="text-4xl font-black">0</div>
+                <p class="text-[10px] mt-2 bg-white/20 inline-block px-3 py-1 rounded-full font-bold">Hari Kencan ✨</p>
+            </div>
+            <div class="bg-gradient-to-br from-amber-500 to-orange-600 p-5 rounded-[2rem] shadow-lg shadow-amber-500/20 text-white">
+                <p class="text-[10px] font-black uppercase tracking-widest opacity-80 mb-1">Shift Serasi</p>
+                <div id="statShift" class="text-4xl font-black">0</div>
+                <p class="text-[10px] mt-2 bg-white/20 inline-block px-3 py-1 rounded-full font-bold">Berangkat Bareng 🚗</p>
+            </div>
+        </section>
+
+        <!-- Table -->
+        <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 overflow-hidden shadow-xl shadow-slate-200/50 dark:shadow-none">
             <div class="overflow-x-auto">
                 <table class="w-full text-left border-collapse">
                     <thead>
-                        <tr class="bg-slate-100 text-slate-700 uppercase text-[10px] sm:text-xs tracking-wider">
-                            <th class="p-4 border-b">Tgl</th>
-                            <th class="p-4 border-b">Suami</th>
-                            <th class="p-4 border-b">Istri</th>
-                            <th class="p-4 border-b text-center">Status</th>
+                        <tr class="bg-slate-50 dark:bg-slate-800/50 text-slate-400 dark:text-slate-500 text-[10px] font-black uppercase tracking-widest border-b border-slate-100 dark:border-slate-800">
+                            <th class="p-4 w-12 text-center">Tgl</th>
+                            <th class="p-4 text-center">Suami</th>
+                            <th class="p-4 text-center">Istri</th>
+                            <th class="p-4 text-center hidden md:table-cell">Status</th>
                         </tr>
                     </thead>
-                    <tbody id="scheduleBody"></tbody>
+                    <tbody id="scheduleBody" class="divide-y divide-slate-100 dark:divide-slate-800">
+                        <!-- Rows will be injected here -->
+                    </tbody>
                 </table>
             </div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-            <div class="bg-white rounded-2xl shadow-lg border border-green-100 dark:border-green-900/30 overflow-hidden">
-                <div class="bg-gradient-to-r from-green-500 to-emerald-600 p-3 text-center text-white">
-                    <h2 class="text-[10px] font-bold uppercase tracking-wider">Libur Bersama</h2>
-                    <p id="liburCount" class="text-2xl font-black">0</p>
-                </div>
-                <div class="p-3">
-                    <div id="liburDateList" class="flex flex-wrap gap-1.5 min-h-[30px]"></div>
-                </div>
-            </div>
+        <!-- Legend -->
+        <section class="mt-8 flex flex-wrap justify-center gap-4 text-[10px] font-extrabold no-print opacity-60">
+            <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-amber-400"></span> P: PAGI</div>
+            <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-emerald-400"></span> S: SIANG</div>
+            <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-indigo-400"></span> M: MALAM</div>
+            <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-rose-400"></span> L/PH/C: LIBUR</div>
+        </section>
 
-            <div class="bg-white rounded-2xl shadow-lg border border-amber-100 dark:border-amber-900/30 overflow-hidden">
-                <div class="bg-gradient-to-r from-amber-500 to-orange-600 p-3 text-center text-white">
-                    <h2 class="text-[10px] font-bold uppercase tracking-wider">Shift Kerja Sama</h2>
-                    <p id="kerjaCount" class="text-2xl font-black">0</p>
-                </div>
-                <div class="p-3">
-                    <div id="kerjaDateList" class="flex flex-wrap gap-1.5 min-h-[30px]"></div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="mt-8 flex flex-wrap justify-center gap-4 no-print">
-            <button onclick="resetJadwal()" class="px-6 py-3 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 rounded-xl shadow-sm transition font-bold flex items-center gap-2">
-                <span>🔄</span> Reset Bulan Ini
-            </button>
-            <button onclick="prepareAndPrint()" class="px-6 py-3 bg-slate-800 dark:bg-pink-600 hover:bg-slate-900 dark:hover:bg-pink-700 text-white rounded-xl shadow-lg transition font-bold flex items-center gap-2">
-                <span>📄</span> Simpan PDF / Cetak
-            </button>
-        </div>
-
-        <footer class="mt-12 text-center">
-            <p class="text-slate-400 text-sm font-medium italic">
-                idea by <span class="text-pink-500 not-italic font-bold">Wahyu Angga</span>
-            </p>
+        <footer class="mt-16 text-center pb-10 opacity-30">
+            <p class="text-xs font-bold tracking-[0.2em] text-slate-500 uppercase">Idea by Wahyu Angga</p>
         </footer>
+    </main>
+
+    <!-- Modal Picker -->
+    <div id="pickerModal" class="fixed inset-0 z-50 hidden flex-col items-end sm:items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm">
+        <div class="modal-content bg-white dark:bg-slate-900 w-full max-w-sm rounded-[2.5rem] p-8 shadow-2xl">
+            <div class="flex justify-between items-center mb-8">
+                <div>
+                    <h3 class="text-2xl font-black tracking-tight">Pilih Shift</h3>
+                    <p id="pickerSub" class="text-xs text-slate-500 uppercase font-bold tracking-widest mt-1">Tanggal 1 • Suami</p>
+                </div>
+                <button onclick="closePicker()" class="p-3 bg-slate-100 dark:bg-slate-800 rounded-full hover:bg-slate-200 transition">
+                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+                </button>
+            </div>
+            
+            <div class="grid grid-cols-3 gap-4">
+                <button onclick="selectShift('P')" class="bg-amber-100 text-amber-700 border-amber-300 h-24 flex flex-col items-center justify-center rounded-3xl border-2 transition-all active:scale-90">
+                    <span class="text-2xl font-black">P</span>
+                    <span class="text-[9px] font-bold uppercase">Pagi</span>
+                </button>
+                <button onclick="selectShift('S')" class="bg-emerald-100 text-emerald-700 border-emerald-300 h-24 flex flex-col items-center justify-center rounded-3xl border-2 transition-all active:scale-90">
+                    <span class="text-2xl font-black">S</span>
+                    <span class="text-[9px] font-bold uppercase">Siang</span>
+                </button>
+                <button onclick="selectShift('M')" class="bg-indigo-100 text-indigo-700 border-indigo-300 h-24 flex flex-col items-center justify-center rounded-3xl border-2 transition-all active:scale-90">
+                    <span class="text-2xl font-black">M</span>
+                    <span class="text-[9px] font-bold uppercase">Malam</span>
+                </button>
+                <button onclick="selectShift('L')" class="bg-rose-100 text-rose-700 border-rose-300 h-24 flex flex-col items-center justify-center rounded-3xl border-2 transition-all active:scale-90">
+                    <span class="text-2xl font-black">L</span>
+                    <span class="text-[9px] font-bold uppercase">Libur</span>
+                </button>
+                <button onclick="selectShift('PH')" class="bg-rose-100 text-rose-700 border-rose-300 h-24 flex flex-col items-center justify-center rounded-3xl border-2 transition-all active:scale-90">
+                    <span class="text-2xl font-black">PH</span>
+                    <span class="text-[9px] font-bold uppercase">Libur</span>
+                </button>
+                <button onclick="selectShift('C')" class="bg-rose-100 text-rose-700 border-rose-300 h-24 flex flex-col items-center justify-center rounded-3xl border-2 transition-all active:scale-90">
+                    <span class="text-2xl font-black">C</span>
+                    <span class="text-[9px] font-bold uppercase">Cuti</span>
+                </button>
+                <button onclick="selectShift('')" class="col-span-3 h-16 bg-slate-50 dark:bg-slate-800 text-slate-400 font-extrabold rounded-2xl flex items-center justify-center mt-2 border-2 border-dashed border-slate-200 dark:border-slate-700">
+                    HAPUS JADWAL
+                </button>
+            </div>
+        </div>
     </div>
 
-    <script>
-        const liburCodes = ['L', 'PH', 'C'];
-        const kerjaCodes = ['P', 'S', 'M'];
-        const BASE_STORAGE_KEY = 'schedule_us_data_';
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+        import { getFirestore, doc, onSnapshot, setDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
-        let currentMonth = new Date().getMonth();
-        let currentYear = new Date().getFullYear();
-        let scheduleData = {};
+        // Global state
+        window.state = {
+            user: null,
+            currentDate: new Date(),
+            schedule: {},
+            activeTarget: null // { day, person }
+        };
 
-        function initPeriod() {
-            const monthSelect = document.getElementById('monthSelect');
-            const yearSelect = document.getElementById('yearSelect');
-            monthSelect.value = currentMonth;
-            yearSelect.innerHTML = '';
-            for (let y = currentYear - 1; y <= currentYear + 1; y++) {
-                const opt = document.createElement('option');
-                opt.value = y; opt.text = y;
-                yearSelect.appendChild(opt);
-            }
-            yearSelect.value = currentYear;
-            checkReminder();
-            loadData();
-        }
+        // Firebase Configuration (Using provided Project Credentials)
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
+            apiKey: "AIzaSyDzQ_dxJzgAbgjxsIYTLnHmpD00x8vEdxU",
+            authDomain: "schedule-us-8a0bf.firebaseapp.com",
+            projectId: "schedule-us-8a0bf",
+            storageBucket: "schedule-us-8a0bf.firebasestorage.app",
+            messagingSenderId: "816949754573",
+            appId: "1:816949754573:web:737618eb5420903d6a8784"
+        };
 
-        function changePeriod() {
-            currentMonth = parseInt(document.getElementById('monthSelect').value);
-            currentYear = parseInt(document.getElementById('yearSelect').value);
-            loadData();
-        }
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        
+        // Identifikasi App ID untuk struktur path Firestore yang aman
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'schedule-us-8a0bf';
 
-        function loadData() {
-            const key = BASE_STORAGE_KEY + currentMonth + '_' + currentYear;
-            scheduleData = JSON.parse(localStorage.getItem(key)) || {};
-            initTable();
-        }
+        const SHIFT_CLASSES = {
+            P: 'bg-amber-100 text-amber-700 border-amber-300 dark:bg-amber-900/40 dark:text-amber-300',
+            S: 'bg-emerald-100 text-emerald-700 border-emerald-300 dark:bg-emerald-900/40 dark:text-emerald-300',
+            M: 'bg-indigo-100 text-indigo-700 border-indigo-300 dark:bg-indigo-900/40 dark:text-indigo-300',
+            L: 'bg-rose-100 text-rose-700 border-rose-300 dark:bg-rose-900/40 dark:text-rose-300',
+            PH: 'bg-rose-100 text-rose-700 border-rose-300 dark:bg-rose-900/40 dark:text-rose-300',
+            C: 'bg-rose-100 text-rose-700 border-rose-300 dark:bg-rose-900/40 dark:text-rose-300',
+            empty: 'bg-slate-100 dark:bg-slate-800 text-slate-300 dark:text-slate-700 border-transparent'
+        };
 
-        function initTable() {
-            const tbody = document.getElementById('scheduleBody');
-            tbody.innerHTML = '';
-            const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+        // --- Logic Handlers ---
 
-            for (let i = 1; i <= daysInMonth; i++) {
-                const valH = scheduleData[`h-${i}`] || '';
-                const valW = scheduleData[`w-${i}`] || '';
-                const row = document.createElement('tr');
-                row.id = `row-${i}`;
-                row.className = "border-b dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition";
-                row.innerHTML = `
-                    <td class="p-3 font-bold text-slate-400 text-xs">${i}</td>
-                    <td class="p-2">
-                        <input type="text" maxlength="2" placeholder="-" class="shift-input border border-slate-200" value="${valH}" oninput="saveAndRefresh(${i}, 'h', this.value)" id="h-${i}">
-                    </td>
-                    <td class="p-2">
-                        <input type="text" maxlength="2" placeholder="-" class="shift-input border border-slate-200" value="${valW}" oninput="saveAndRefresh(${i}, 'w', this.value)" id="w-${i}">
-                    </td>
-                    <td class="p-2 text-center" id="status-${i}"></td>
-                `;
-                tbody.appendChild(row);
-                updateVisuals(i);
-            }
-            updateSummary();
-        }
-
-        function saveAndRefresh(day, person, value) {
-            const upperVal = value.toUpperCase();
-            document.getElementById(`${person}-${day}`).value = upperVal;
-            scheduleData[`${person}-${day}`] = upperVal;
-            localStorage.setItem(BASE_STORAGE_KEY + currentMonth + '_' + currentYear, JSON.stringify(scheduleData));
-            updateVisuals(day);
-            updateSummary();
-        }
-
-        function updateVisuals(day) {
-            const inputH = document.getElementById(`h-${day}`);
-            const inputW = document.getElementById(`w-${day}`);
-            const statusCell = document.getElementById(`status-${day}`);
-            const row = document.getElementById(`row-${day}`);
-            const valH = inputH.value.toUpperCase();
-            const valW = inputW.value.toUpperCase();
-
-            [inputH, inputW].forEach(input => {
-                const v = input.value.toUpperCase();
-                input.className = 'shift-input border';
-                if (v === 'P') input.classList.add('shift-P');
-                else if (v === 'S') input.classList.add('shift-S');
-                else if (v === 'M') input.classList.add('shift-M');
-                else if (liburCodes.includes(v)) input.classList.add('shift-L');
-                else input.classList.add('border-slate-200', 'dark:border-slate-600');
-            });
-
-            row.classList.remove('match-libur', 'match-kerja');
-            if (liburCodes.includes(valH) && liburCodes.includes(valW)) {
-                statusCell.innerHTML = '<span class="px-2 py-1 bg-green-500 text-white text-[9px] rounded-full font-bold shadow-sm whitespace-nowrap">LIBUR BERSAMA</span>';
-                row.classList.add('match-libur');
-            } else if (valH !== '' && valH === valW && kerjaCodes.includes(valH)) {
-                statusCell.innerHTML = '<span class="px-2 py-1 bg-amber-500 text-white text-[9px] rounded-full font-bold shadow-sm whitespace-nowrap">SHIFT SAMA</span>';
-                row.classList.add('match-kerja');
+        window.initApp = async () => {
+            // Menggunakan token khusus jika ada (lingkungan kolaborasi), atau login anonim
+            if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                try {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } catch (e) {
+                    await signInAnonymously(auth);
+                }
             } else {
-                statusCell.innerHTML = '<span class="text-slate-300 text-[10px]">-</span>';
-            }
-        }
-
-        function updateSummary() {
-            let lCount = 0, kCount = 0;
-            let lEntries = [], kEntries = [];
-            const days = new Date(currentYear, currentMonth + 1, 0).getDate();
-
-            for (let i = 1; i <= days; i++) {
-                const h = (scheduleData[`h-${i}`] || '').toUpperCase();
-                const w = (scheduleData[`w-${i}`] || '').toUpperCase();
-                if (liburCodes.includes(h) && liburCodes.includes(w)) {
-                    lCount++; lEntries.push({d: i, l: h === w ? h : `${h}&${w}`});
-                } else if (h !== '' && h === w && kerjaCodes.includes(h)) {
-                    kCount++; kEntries.push({d: i, l: h});
-                }
+                await signInAnonymously(auth);
             }
 
-            document.getElementById('liburCount').innerText = lCount;
-            document.getElementById('kerjaCount').innerText = kCount;
+            onAuthStateChanged(auth, (user) => {
+                window.state.user = user;
+                if (user) startSync();
+            });
+        };
+
+        let unsubscribe = null;
+        function startSync() {
+            if (unsubscribe) unsubscribe();
+
+            const month = window.state.currentDate.getMonth();
+            const year = window.state.currentDate.getFullYear();
             
-            document.getElementById('liburDateList').innerHTML = lEntries.length > 0 ? lEntries.map(e => `
-                <div class="flex flex-col items-center bg-green-100 dark:bg-green-900/40 border border-green-200 dark:border-green-800 rounded px-1.5 py-0.5">
-                    <span class="text-green-700 dark:text-green-300 text-[10px] font-bold">Tgl ${e.d}</span>
-                    <span class="text-green-600 dark:text-green-400 text-[8px] uppercase">${e.l}</span>
-                </div>`).join('') : '<span class="text-slate-400 italic text-[10px]">Kosong</span>';
+            // Mengikuti RULE 1: /artifacts/{appId}/public/data/{collectionName}
+            const docRef = doc(db, 'artifacts', appId, 'public', 'data', `schedule_${year}_${month}`);
 
-            document.getElementById('kerjaDateList').innerHTML = kEntries.length > 0 ? kEntries.map(e => `
-                <div class="flex flex-col items-center bg-amber-100 dark:bg-amber-900/40 border border-amber-200 dark:border-amber-800 rounded px-1.5 py-0.5">
-                    <span class="text-amber-700 dark:text-amber-300 text-[10px] font-bold">Tgl ${e.d}</span>
-                    <span class="text-amber-600 dark:text-amber-400 text-[8px] uppercase">Shift ${e.l}</span>
-                </div>`).join('') : '<span class="text-slate-400 italic text-[10px]">Kosong</span>';
+            document.getElementById('statusIndicator').className = 'w-2 h-2 rounded-full bg-amber-500 animate-pulse';
+            document.getElementById('statusText').innerText = 'Syncing';
+
+            unsubscribe = onSnapshot(docRef, (docSnap) => {
+                window.state.schedule = docSnap.exists() ? docSnap.data() : {};
+                renderCalendar();
+                updateStats();
+                document.getElementById('statusIndicator').className = 'w-2 h-2 rounded-full bg-green-500';
+                document.getElementById('statusText').innerText = 'Live';
+            }, (err) => {
+                console.error("Firestore sync error:", err);
+                document.getElementById('statusText').innerText = 'Offline';
+            });
         }
 
-        function searchDate() {
-            const val = parseInt(document.getElementById('searchInput').value);
-            if (val > 0) {
-                const row = document.getElementById(`row-${val}`);
-                if (row) {
-                    row.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    row.classList.add('search-highlight');
-                    setTimeout(() => row.classList.remove('search-highlight'), 2000);
+        function renderCalendar() {
+            const container = document.getElementById('scheduleBody');
+            const date = window.state.currentDate;
+            const month = date.getMonth();
+            const year = date.getFullYear();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+            document.getElementById('monthLabel').innerText = date.toLocaleString('id-ID', { month: 'long', year: 'numeric' });
+
+            let html = '';
+            for (let d = 1; d <= daysInMonth; d++) {
+                const hVal = window.state.schedule[`h-${d}`] || '';
+                const wVal = window.state.schedule[`w-${d}`] || '';
+                
+                const isMatchingLibur = ['L', 'PH', 'C'].includes(hVal) && ['L', 'PH', 'C'].includes(wVal);
+                const isMatchingKerja = hVal && hVal === wVal && ['P', 'S', 'M'].includes(hVal);
+
+                html += `
+                    <tr id="row-${d}" class="${isMatchingLibur ? 'bg-emerald-50/40 dark:bg-emerald-950/20' : ''} ${isMatchingKerja ? 'bg-amber-50/40 dark:bg-amber-950/20' : ''} transition-all duration-300">
+                        <td class="p-4 text-center font-bold text-slate-300 dark:text-slate-600">${d}</td>
+                        <td class="p-2">
+                            <button onclick="openPicker(${d}, 'h')" class="w-full h-12 rounded-2xl border-2 font-black flex items-center justify-center transition-all active:scale-95 ${SHIFT_CLASSES[hVal] || SHIFT_CLASSES.empty}">
+                                ${hVal || '-'}
+                            </button>
+                        </td>
+                        <td class="p-2">
+                            <button onclick="openPicker(${d}, 'w')" class="w-full h-12 rounded-2xl border-2 font-black flex items-center justify-center transition-all active:scale-95 ${SHIFT_CLASSES[wVal] || SHIFT_CLASSES.empty}">
+                                ${wVal || '-'}
+                            </button>
+                        </td>
+                        <td class="p-2 text-center hidden md:table-cell">
+                            ${isMatchingLibur ? '<span class="text-[9px] font-black px-3 py-1 bg-emerald-500 text-white rounded-full">LIBUR BERSAMA</span>' : ''}
+                            ${isMatchingKerja ? '<span class="text-[9px] font-black px-3 py-1 bg-amber-500 text-white rounded-full">SHIFT SAMA</span>' : ''}
+                        </td>
+                    </tr>
+                `;
+            }
+            container.innerHTML = html;
+        }
+
+        function updateStats() {
+            let libur = 0, shift = 0;
+            const days = new Date(window.state.currentDate.getFullYear(), window.state.currentDate.getMonth() + 1, 0).getDate();
+            
+            for (let d = 1; d <= days; d++) {
+                const h = (window.state.schedule[`h-${d}`] || '').toUpperCase();
+                const w = (window.state.schedule[`w-${d}`] || '').toUpperCase();
+                if (h && w) {
+                    if (['L', 'PH', 'C'].includes(h) && ['L', 'PH', 'C'].includes(w)) libur++;
+                    else if (h === w && ['P', 'S', 'M'].includes(h)) shift++;
                 }
             }
+            document.getElementById('statLibur').innerText = libur;
+            document.getElementById('statShift').innerText = shift;
         }
 
-        function checkReminder() {
-            if (new Date().getDate() >= 25) document.getElementById('reminderBox').classList.remove('hidden');
-        }
+        // --- Window Globals ---
 
-        function prepareAndPrint() {
-            const m = document.getElementById('monthSelect').options[document.getElementById('monthSelect').selectedIndex].text;
-            const y = document.getElementById('yearSelect').value;
-            document.getElementById('print-period-title').innerText = `Jadwal Periode: ${m} ${y}`;
-            window.print();
-        }
+        window.changeMonth = (offset) => {
+            const d = window.state.currentDate;
+            window.state.currentDate = new Date(d.getFullYear(), d.getMonth() + offset, 1);
+            startSync();
+        };
 
-        function resetJadwal() {
-            if(confirm('Hapus log bulan ini?')) {
-                localStorage.removeItem(BASE_STORAGE_KEY + currentMonth + '_' + currentYear);
-                scheduleData = {}; initTable();
+        window.openPicker = (day, person) => {
+            window.state.activeTarget = { day, person };
+            document.getElementById('pickerSub').innerText = `Tgl ${day} • ${person === 'h' ? 'Suami' : 'Istri'}`;
+            document.getElementById('pickerModal').classList.add('modal-active');
+        };
+
+        window.closePicker = () => {
+            document.getElementById('pickerModal').classList.remove('modal-active');
+        };
+
+        window.selectShift = async (val) => {
+            if (!window.state.user || !window.state.activeTarget) return;
+            
+            const { day, person } = window.state.activeTarget;
+            const month = window.state.currentDate.getMonth();
+            const year = window.state.currentDate.getFullYear();
+            const docRef = doc(db, 'artifacts', appId, 'public', 'data', `schedule_${year}_${month}`);
+            
+            const key = `${person}-${day}`;
+            try {
+                await setDoc(docRef, { [key]: val }, { merge: true });
+            } catch (e) {
+                console.error("Save error:", e);
             }
-        }
+            closePicker();
+        };
 
-        window.onload = initPeriod;
+        window.highlightRow = (val) => {
+            document.querySelectorAll('tr[id^="row-"]').forEach(r => r.classList.remove('ring-4', 'ring-pink-500/30', 'bg-pink-50', 'dark:bg-pink-900/10'));
+            if (val && document.getElementById(`row-${val}`)) {
+                const target = document.getElementById(`row-${val}`);
+                target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                target.classList.add('ring-4', 'ring-pink-500/30', 'bg-pink-50', 'dark:bg-pink-900/10');
+            }
+        };
+
+        window.onload = window.initApp;
+
     </script>
 </body>
 </html>
