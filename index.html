@@ -8,46 +8,26 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
         
-        body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-        }
-
-        .modal-active {
-            display: flex !important;
-            animation: fadeIn 0.2s ease-out;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        @keyframes slideUp {
-            from { transform: translateY(20px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-
-        .modal-content {
-            animation: slideUp 0.3s ease-out;
-        }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .modal-active { display: flex !important; animation: fadeIn 0.2s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .modal-content { animation: slideUp 0.3s ease-out; }
 
         @media print {
             .no-print { display: none !important; }
             body { background: white; color: black; }
             .print-container { width: 100% !important; max-width: none !important; margin: 0 !important; padding: 0 !important; }
-            .bg-slate-50, .dark\:bg-slate-950 { background: white !important; }
-            .bg-white, .dark\:bg-slate-900 { background: white !important; }
         }
     </style>
 </head>
 <body class="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 min-h-screen pb-20 transition-colors duration-300">
 
-    <!-- Navbar -->
     <nav class="sticky top-0 z-40 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 p-4">
         <div class="max-w-4xl mx-auto flex justify-between items-center">
             <div class="flex items-center gap-3">
                 <div class="bg-pink-500 p-2 rounded-xl shadow-lg shadow-pink-500/30">
-                    <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                    <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2-2v12a2 2 0 002 2z" /></svg>
                 </div>
                 <div>
                     <h1 class="text-xl font-extrabold tracking-tight leading-none">Schedule•Us</h1>
@@ -68,7 +48,6 @@
 
     <main class="max-w-4xl mx-auto px-4 py-6 print-container">
         
-        <!-- Navigation -->
         <section class="mb-6 flex flex-col md:flex-row gap-4 items-center justify-between no-print">
             <div class="flex items-center gap-1 bg-white dark:bg-slate-900 p-1 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800">
                 <button onclick="changeMonth(-1)" class="p-2 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl transition">
@@ -87,21 +66,23 @@
             </div>
         </section>
 
-        <!-- Stats -->
-        <section class="grid grid-cols-2 gap-4 mb-8">
+        <section class="grid grid-cols-2 gap-4 mb-6">
             <div class="bg-gradient-to-br from-emerald-500 to-teal-600 p-5 rounded-[2rem] shadow-lg shadow-emerald-500/20 text-white">
                 <p class="text-[10px] font-black uppercase tracking-widest opacity-80 mb-1">Libur Bersama</p>
                 <div id="statLibur" class="text-4xl font-black">0</div>
-                <p class="text-[10px] mt-2 bg-white/20 inline-block px-3 py-1 rounded-full font-bold">Hari Kencan ✨</p>
             </div>
             <div class="bg-gradient-to-br from-amber-500 to-orange-600 p-5 rounded-[2rem] shadow-lg shadow-amber-500/20 text-white">
                 <p class="text-[10px] font-black uppercase tracking-widest opacity-80 mb-1">Shift Serasi</p>
                 <div id="statShift" class="text-4xl font-black">0</div>
-                <p class="text-[10px] mt-2 bg-white/20 inline-block px-3 py-1 rounded-full font-bold">Berangkat Bareng 🚗</p>
             </div>
         </section>
 
-        <!-- Table -->
+        <section id="agendaSection" class="mb-8 no-print hidden">
+            <h3 class="text-xs font-black uppercase tracking-[0.2em] text-slate-400 mb-4 px-2">Agenda Serasi ✨</h3>
+            <div id="agendaList" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                </div>
+        </section>
+
         <div class="bg-white dark:bg-slate-900 rounded-[2.5rem] border border-slate-200 dark:border-slate-800 overflow-hidden shadow-xl shadow-slate-200/50 dark:shadow-none mb-8">
             <div class="overflow-x-auto">
                 <table class="w-full text-left border-collapse">
@@ -113,104 +94,59 @@
                             <th class="p-4 text-center hidden md:table-cell">Status</th>
                         </tr>
                     </thead>
-                    <tbody id="scheduleBody" class="divide-y divide-slate-100 dark:divide-slate-800">
-                        <!-- Rows injected here -->
-                    </tbody>
+                    <tbody id="scheduleBody" class="divide-y divide-slate-100 dark:divide-slate-800"></tbody>
                 </table>
             </div>
         </div>
 
-        <!-- Danger Zone / Action -->
         <div class="flex justify-center mb-8 no-print">
             <button onclick="openResetModal()" class="flex items-center gap-2 px-6 py-3 bg-rose-50 dark:bg-rose-900/20 text-rose-600 dark:text-rose-400 font-bold rounded-2xl border border-rose-100 dark:border-rose-900/30 hover:bg-rose-100 transition active:scale-95">
                 <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
                 Reset Data Bulan Ini
             </button>
         </div>
-
-        <footer class="mt-16 text-center pb-10 opacity-30">
-            <p class="text-xs font-bold tracking-[0.2em] text-slate-500 uppercase">Idea by Wahyu Angga</p>
-        </footer>
     </main>
 
-    <!-- Modal Picker -->
     <div id="pickerModal" class="fixed inset-0 z-50 hidden flex-col items-end sm:items-center justify-center p-4 bg-slate-950/60 backdrop-blur-sm">
-        <div class="modal-content bg-white dark:bg-slate-900 w-full max-sm:w-full max-w-sm rounded-[2.5rem] p-8 shadow-2xl">
+        <div class="modal-content bg-white dark:bg-slate-900 w-full max-w-sm rounded-[2.5rem] p-8">
             <div class="flex justify-between items-center mb-8">
                 <div>
-                    <h3 class="text-2xl font-black tracking-tight">Pilih Shift</h3>
-                    <p id="pickerSub" class="text-xs text-slate-500 uppercase font-bold tracking-widest mt-1">Tanggal 1 • Suami</p>
+                    <h3 class="text-2xl font-black">Pilih Shift</h3>
+                    <p id="pickerSub" class="text-xs text-slate-500 uppercase font-bold mt-1"></p>
                 </div>
-                <button onclick="closePicker()" class="p-3 bg-slate-100 dark:bg-slate-800 rounded-full hover:bg-slate-200 transition">
+                <button onclick="closePicker()" class="p-3 bg-slate-100 dark:bg-slate-800 rounded-full">
                     <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
                 </button>
             </div>
-            
             <div class="grid grid-cols-3 gap-4">
-                <button onclick="selectShift('P')" class="bg-amber-100 text-amber-700 border-amber-300 h-24 flex flex-col items-center justify-center rounded-3xl border-2 transition-all active:scale-90">
-                    <span class="text-2xl font-black">P</span>
-                    <span class="text-[9px] font-bold uppercase">Pagi</span>
-                </button>
-                <button onclick="selectShift('S')" class="bg-emerald-100 text-emerald-700 border-emerald-300 h-24 flex flex-col items-center justify-center rounded-3xl border-2 transition-all active:scale-90">
-                    <span class="text-2xl font-black">S</span>
-                    <span class="text-[9px] font-bold uppercase">Siang</span>
-                </button>
-                <button onclick="selectShift('M')" class="bg-indigo-100 text-indigo-700 border-indigo-300 h-24 flex flex-col items-center justify-center rounded-3xl border-2 transition-all active:scale-90">
-                    <span class="text-2xl font-black">M</span>
-                    <span class="text-[9px] font-bold uppercase">Malam</span>
-                </button>
-                <button onclick="selectShift('L')" class="bg-rose-100 text-rose-700 border-rose-300 h-24 flex flex-col items-center justify-center rounded-3xl border-2 transition-all active:scale-90">
-                    <span class="text-2xl font-black">L</span>
-                    <span class="text-[9px] font-bold uppercase">Libur</span>
-                </button>
-                <button onclick="selectShift('PH')" class="bg-rose-100 text-rose-700 border-rose-300 h-24 flex flex-col items-center justify-center rounded-3xl border-2 transition-all active:scale-90">
-                    <span class="text-2xl font-black">PH</span>
-                    <span class="text-[9px] font-bold uppercase">Libur</span>
-                </button>
-                <button onclick="selectShift('C')" class="bg-rose-100 text-rose-700 border-rose-300 h-24 flex flex-col items-center justify-center rounded-3xl border-2 transition-all active:scale-90">
-                    <span class="text-2xl font-black">C</span>
-                    <span class="text-[9px] font-bold uppercase">Cuti</span>
-                </button>
-                <button onclick="selectShift('')" class="col-span-3 h-16 bg-slate-50 dark:bg-slate-800 text-slate-400 font-extrabold rounded-2xl flex items-center justify-center mt-2 border-2 border-dashed border-slate-200 dark:border-slate-700">
-                    HAPUS JADWAL
-                </button>
+                <button onclick="selectShift('P')" class="bg-amber-100 text-amber-700 h-20 rounded-3xl font-black">P</button>
+                <button onclick="selectShift('S')" class="bg-emerald-100 text-emerald-700 h-20 rounded-3xl font-black">S</button>
+                <button onclick="selectShift('M')" class="bg-indigo-100 text-indigo-700 h-20 rounded-3xl font-black">M</button>
+                <button onclick="selectShift('L')" class="bg-rose-100 text-rose-700 h-20 rounded-3xl font-black">L</button>
+                <button onclick="selectShift('PH')" class="bg-rose-100 text-rose-700 h-20 rounded-3xl font-black">PH</button>
+                <button onclick="selectShift('C')" class="bg-rose-100 text-rose-700 h-20 rounded-3xl font-black">C</button>
+                <button onclick="selectShift('')" class="col-span-3 h-12 bg-slate-100 text-slate-400 font-bold rounded-xl mt-2 italic">Hapus</button>
             </div>
         </div>
     </div>
 
-    <!-- Modal Reset Confirmation -->
     <div id="resetModal" class="fixed inset-0 z-[60] hidden flex-col items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md">
-        <div class="modal-content bg-white dark:bg-slate-900 w-full max-w-sm rounded-[2.5rem] p-8 shadow-2xl text-center">
-            <div class="w-20 h-20 bg-rose-100 dark:bg-rose-900/30 rounded-full flex items-center justify-center mx-auto mb-6">
-                <svg class="w-10 h-10 text-rose-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
-            </div>
+        <div class="modal-content bg-white dark:bg-slate-900 w-full max-w-sm rounded-[2.5rem] p-8 text-center">
             <h3 class="text-2xl font-black mb-2">Hapus Jadwal?</h3>
-            <p id="resetModalText" class="text-slate-500 text-sm mb-8">Seluruh data pada bulan ini akan dihapus permanen.</p>
-            
+            <p id="resetModalText" class="text-slate-500 text-sm mb-8"></p>
             <div class="flex flex-col gap-3">
-                <button onclick="executeReset()" class="w-full py-4 bg-rose-500 hover:bg-rose-600 text-white font-black rounded-2xl shadow-lg shadow-rose-500/30 transition active:scale-95">
-                    YA, HAPUS SEMUA
-                </button>
-                <button onclick="closeResetModal()" class="w-full py-4 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-bold rounded-2xl transition">
-                    BATALKAN
-                </button>
+                <button onclick="executeReset()" class="w-full py-4 bg-rose-500 text-white font-black rounded-2xl">YA, HAPUS SEMUA</button>
+                <button onclick="closeResetModal()" class="w-full py-4 bg-slate-100 text-slate-600 font-bold rounded-2xl">BATALKAN</button>
             </div>
         </div>
     </div>
 
-    <!-- Firebase SDK -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
         import { getDatabase, ref, onValue, update, remove } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 
-        // Global state
-        window.state = {
-            currentDate: new Date(),
-            schedule: {},
-            activeTarget: null,
-            user: null
-        };
+        window.state = { currentDate: new Date(), schedule: {}, user: null };
 
         const firebaseConfig = {
             apiKey: "AIzaSyDzQ_dxJzgAbgjxsIYTLnHmpD00x8vEdxU",
@@ -236,45 +172,25 @@
             empty: 'bg-slate-100 dark:bg-slate-800 text-slate-300 dark:text-slate-700 border-transparent'
         };
 
-        // Initialize Authentication
-        async function initAuth() {
-            try {
-                await signInAnonymously(auth);
-            } catch (error) {
-                console.error("Auth error:", error);
-                document.getElementById('statusText').innerText = "Auth Error";
-            }
-        }
-
-        onAuthStateChanged(auth, (user) => {
-            window.state.user = user;
-            if (user) {
-                startSync();
-            }
+        onAuthStateChanged(auth, (user) => { 
+            window.state.user = user; 
+            if (user) startSync(); 
+            else signInAnonymously(auth);
         });
 
         let currentListener = null;
         function startSync() {
-            if (!window.state.user) return;
-            
             const month = window.state.currentDate.getMonth();
             const year = window.state.currentDate.getFullYear();
             const dbRef = ref(db, `schedules/${year}_${month}`);
-
             document.getElementById('statusIndicator').className = 'w-2 h-2 rounded-full bg-amber-500 animate-pulse';
-            document.getElementById('statusText').innerText = 'Syncing';
-
             if (currentListener) currentListener();
-
             currentListener = onValue(dbRef, (snapshot) => {
                 window.state.schedule = snapshot.val() || {};
                 renderCalendar();
-                updateStats();
+                updateStatsAndAgenda();
                 document.getElementById('statusIndicator').className = 'w-2 h-2 rounded-full bg-green-500';
                 document.getElementById('statusText').innerText = 'Live';
-            }, (error) => {
-                console.error("Database sync error:", error);
-                document.getElementById('statusText').innerText = 'Rules Error';
             });
         }
 
@@ -282,33 +198,27 @@
             const container = document.getElementById('scheduleBody');
             const date = window.state.currentDate;
             const daysInMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
-
             document.getElementById('monthLabel').innerText = date.toLocaleString('id-ID', { month: 'long', year: 'numeric' });
 
             let html = '';
             for (let d = 1; d <= daysInMonth; d++) {
                 const hVal = window.state.schedule[`h-${d}`] || '';
                 const wVal = window.state.schedule[`w-${d}`] || '';
-                
-                const isMatchingLibur = ['L', 'PH', 'C'].includes(hVal) && ['L', 'PH', 'C'].includes(wVal);
-                const isMatchingKerja = hVal && hVal === wVal && ['P', 'S', 'M'].includes(hVal);
+                const isLibur = ['L', 'PH', 'C'].includes(hVal) && ['L', 'PH', 'C'].includes(wVal);
+                const isKerja = hVal && hVal === wVal && ['P', 'S', 'M'].includes(hVal);
 
                 html += `
-                    <tr id="row-${d}" class="${isMatchingLibur ? 'bg-emerald-50/40 dark:bg-emerald-950/20' : ''} ${isMatchingKerja ? 'bg-amber-50/40 dark:bg-amber-950/20' : ''} transition-all duration-300">
+                    <tr id="row-${d}" class="${isLibur ? 'bg-emerald-50/40 dark:bg-emerald-950/20' : ''} ${isKerja ? 'bg-amber-50/40 dark:bg-amber-950/20' : ''} transition-all">
                         <td class="p-4 text-center font-bold text-slate-300 dark:text-slate-600">${d}</td>
                         <td class="p-2">
-                            <button onclick="openPicker(${d}, 'h')" class="w-full h-12 rounded-2xl border-2 font-black flex items-center justify-center transition-all active:scale-95 ${SHIFT_CLASSES[hVal] || SHIFT_CLASSES.empty}">
-                                ${hVal || '-'}
-                            </button>
+                            <button onclick="openPicker(${d}, 'h')" class="w-full h-12 rounded-2xl border-2 font-black ${SHIFT_CLASSES[hVal] || SHIFT_CLASSES.empty}">${hVal || '-'}</button>
                         </td>
                         <td class="p-2">
-                            <button onclick="openPicker(${d}, 'w')" class="w-full h-12 rounded-2xl border-2 font-black flex items-center justify-center transition-all active:scale-95 ${SHIFT_CLASSES[wVal] || SHIFT_CLASSES.empty}">
-                                ${wVal || '-'}
-                            </button>
+                            <button onclick="openPicker(${d}, 'w')" class="w-full h-12 rounded-2xl border-2 font-black ${SHIFT_CLASSES[wVal] || SHIFT_CLASSES.empty}">${wVal || '-'}</button>
                         </td>
                         <td class="p-2 text-center hidden md:table-cell">
-                            ${isMatchingLibur ? '<span class="text-[9px] font-black px-3 py-1 bg-emerald-500 text-white rounded-full">LIBUR BERSAMA</span>' : ''}
-                            ${isMatchingKerja ? '<span class="text-[9px] font-black px-3 py-1 bg-amber-500 text-white rounded-full">SHIFT SAMA</span>' : ''}
+                            ${isLibur ? '<span class="text-[9px] font-black px-3 py-1 bg-emerald-500 text-white rounded-full uppercase">Libur</span>' : ''}
+                            ${isKerja ? '<span class="text-[9px] font-black px-3 py-1 bg-amber-500 text-white rounded-full uppercase">Shift Sama</span>' : ''}
                         </td>
                     </tr>
                 `;
@@ -316,23 +226,56 @@
             container.innerHTML = html;
         }
 
-        function updateStats() {
-            let libur = 0, shift = 0;
+        function updateStatsAndAgenda() {
+            let liburCount = 0, shiftCount = 0;
+            let agendaHtml = '';
             const days = new Date(window.state.currentDate.getFullYear(), window.state.currentDate.getMonth() + 1, 0).getDate();
             
             for (let d = 1; d <= days; d++) {
-                const h = (window.state.schedule[`h-${d}`] || '').toUpperCase();
-                const w = (window.state.schedule[`w-${d}`] || '').toUpperCase();
+                const h = (window.state.schedule[`h-${d}`] || '');
+                const w = (window.state.schedule[`w-${d}`] || '');
+                
                 if (h && w) {
-                    if (['L', 'PH', 'C'].includes(h) && ['L', 'PH', 'C'].includes(w)) libur++;
-                    else if (h === w && ['P', 'S', 'M'].includes(h)) shift++;
+                    if (['L', 'PH', 'C'].includes(h) && ['L', 'PH', 'C'].includes(w)) {
+                        liburCount++;
+                        agendaHtml += createAgendaCard(d, 'Libur', 'bg-emerald-500');
+                    } else if (h === w && ['P', 'S', 'M'].includes(h)) {
+                        shiftCount++;
+                        agendaHtml += createAgendaCard(d, `Shift ${h}`, 'bg-amber-500');
+                    }
                 }
             }
-            document.getElementById('statLibur').innerText = libur;
-            document.getElementById('statShift').innerText = shift;
+
+            document.getElementById('statLibur').innerText = liburCount;
+            document.getElementById('statShift').innerText = shiftCount;
+            
+            const agendaList = document.getElementById('agendaList');
+            const agendaSection = document.getElementById('agendaSection');
+            
+            if (agendaHtml) {
+                agendaList.innerHTML = agendaHtml;
+                agendaSection.classList.remove('hidden');
+            } else {
+                agendaSection.classList.add('hidden');
+            }
         }
 
-        // --- Global Methods ---
+        function createAgendaCard(day, label, colorClass) {
+            return `
+                <div onclick="highlightRow(${day})" class="cursor-pointer bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-3 rounded-2xl flex items-center gap-3 hover:border-pink-300 transition-all active:scale-95 shadow-sm">
+                    <div class="w-10 h-10 ${colorClass} text-white flex flex-col items-center justify-center rounded-xl shrink-0">
+                        <span class="text-[8px] font-black uppercase leading-none opacity-70">TGL</span>
+                        <span class="text-lg font-black leading-none">${day}</span>
+                    </div>
+                    <div class="overflow-hidden">
+                        <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest truncate">${label}</p>
+                        <p class="text-[9px] font-bold text-pink-500 uppercase">Lihat Detail</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Global functions for buttons
         window.changeMonth = (offset) => {
             const d = window.state.currentDate;
             window.state.currentDate = new Date(d.getFullYear(), d.getMonth() + offset, 1);
@@ -345,59 +288,39 @@
             document.getElementById('pickerModal').classList.add('modal-active');
         };
 
-        window.closePicker = () => {
-            document.getElementById('pickerModal').classList.remove('modal-active');
-        };
+        window.closePicker = () => document.getElementById('pickerModal').classList.remove('modal-active');
 
         window.selectShift = async (val) => {
-            if (!window.state.user || !window.state.activeTarget) return;
             const { day, person } = window.state.activeTarget;
             const month = window.state.currentDate.getMonth();
             const year = window.state.currentDate.getFullYear();
             const dbRef = ref(db, `schedules/${year}_${month}`);
-            const key = `${person}-${day}`;
-            try {
-                await update(dbRef, { [key]: val });
-            } catch (e) {
-                console.error("Save error:", e);
-            }
+            await update(dbRef, { [`${person}-${day}`]: val });
             closePicker();
         };
 
         window.openResetModal = () => {
-            const mLabel = document.getElementById('monthLabel').innerText;
-            document.getElementById('resetModalText').innerText = `Hapus semua data bulan ${mLabel}?`;
+            document.getElementById('resetModalText').innerText = `Hapus semua data bulan ${document.getElementById('monthLabel').innerText}?`;
             document.getElementById('resetModal').classList.add('modal-active');
         };
 
-        window.closeResetModal = () => {
-            document.getElementById('resetModal').classList.remove('modal-active');
-        };
+        window.closeResetModal = () => document.getElementById('resetModal').classList.remove('modal-active');
 
         window.executeReset = async () => {
-            if (!window.state.user) return;
             const month = window.state.currentDate.getMonth();
             const year = window.state.currentDate.getFullYear();
-            const dbRef = ref(db, `schedules/${year}_${month}`);
-            try {
-                await remove(dbRef);
-                closeResetModal();
-            } catch (e) {
-                console.error("Reset error:", e);
-            }
+            await remove(ref(db, `schedules/${year}_${month}`));
+            closeResetModal();
         };
 
         window.highlightRow = (val) => {
             document.querySelectorAll('tr[id^="row-"]').forEach(r => r.classList.remove('ring-4', 'ring-pink-500/30', 'bg-pink-50', 'dark:bg-pink-900/10'));
-            if (val && document.getElementById(`row-${val}`)) {
-                const target = document.getElementById(`row-${val}`);
+            const target = document.getElementById(`row-${val}`);
+            if (target) {
                 target.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 target.classList.add('ring-4', 'ring-pink-500/30', 'bg-pink-50', 'dark:bg-pink-900/10');
             }
         };
-
-        // Start Auth
-        initAuth();
     </script>
 </body>
 </html>
