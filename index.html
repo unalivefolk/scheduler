@@ -31,17 +31,10 @@
             animation: slideUp 0.3s ease-out;
         }
 
-        /* Hide scrollbar for Chrome, Safari and Opera */
-        .no-scrollbar::-webkit-scrollbar {
-            display: none;
-        }
-
         @media print {
             .no-print { display: none !important; }
             body { background: white; color: black; }
             .print-container { width: 100% !important; max-width: none !important; margin: 0 !important; padding: 0 !important; }
-            .shadow-xl { box-shadow: none !important; }
-            .border { border: 1px solid #e2e8f0 !important; }
             .bg-slate-50, .dark\:bg-slate-950 { background: white !important; }
             .bg-white, .dark\:bg-slate-900 { background: white !important; }
         }
@@ -54,11 +47,11 @@
         <div class="max-w-4xl mx-auto flex justify-between items-center">
             <div class="flex items-center gap-3">
                 <div class="bg-pink-500 p-2 rounded-xl shadow-lg shadow-pink-500/30">
-                    <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                    <svg class="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2-2v12a2 2 0 002 2z" /></svg>
                 </div>
                 <div>
                     <h1 class="text-xl font-extrabold tracking-tight leading-none">Schedule•Us</h1>
-                    <p class="text-[10px] text-pink-500 font-bold uppercase tracking-widest mt-1 no-print">Cloud Synced</p>
+                    <p class="text-[10px] text-pink-500 font-bold uppercase tracking-widest mt-1 no-print">Realtime Synced</p>
                 </div>
             </div>
             <div class="flex items-center gap-3 no-print">
@@ -121,19 +114,11 @@
                         </tr>
                     </thead>
                     <tbody id="scheduleBody" class="divide-y divide-slate-100 dark:divide-slate-800">
-                        <!-- Rows will be injected here -->
+                        <!-- Rows injected here -->
                     </tbody>
                 </table>
             </div>
         </div>
-
-        <!-- Legend -->
-        <section class="mt-8 flex flex-wrap justify-center gap-4 text-[10px] font-extrabold no-print opacity-60">
-            <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-amber-400"></span> P: PAGI</div>
-            <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-emerald-400"></span> S: SIANG</div>
-            <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-indigo-400"></span> M: MALAM</div>
-            <div class="flex items-center gap-2"><span class="w-3 h-3 rounded-full bg-rose-400"></span> L/PH/C: LIBUR</div>
-        </section>
 
         <footer class="mt-16 text-center pb-10 opacity-30">
             <p class="text-xs font-bold tracking-[0.2em] text-slate-500 uppercase">Idea by Wahyu Angga</p>
@@ -188,21 +173,20 @@
     <!-- Firebase SDK -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
-        import { getFirestore, doc, onSnapshot, setDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+        import { getDatabase, ref, onValue, update } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
 
         // Global state
         window.state = {
-            user: null,
             currentDate: new Date(),
             schedule: {},
             activeTarget: null // { day, person }
         };
 
-        // Firebase Configuration (Using provided Project Credentials)
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
+        // Konfigurasi Realtime Database Anda
+        const firebaseConfig = {
             apiKey: "AIzaSyDzQ_dxJzgAbgjxsIYTLnHmpD00x8vEdxU",
             authDomain: "schedule-us-8a0bf.firebaseapp.com",
+            databaseURL: "https://schedule-us-8a0bf-default-rtdb.asia-southeast1.firebasedatabase.app",
             projectId: "schedule-us-8a0bf",
             storageBucket: "schedule-us-8a0bf.firebasestorage.app",
             messagingSenderId: "816949754573",
@@ -210,11 +194,7 @@
         };
 
         const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-        
-        // Identifikasi App ID untuk struktur path Firestore yang aman
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'schedule-us-8a0bf';
+        const db = getDatabase(app);
 
         const SHIFT_CLASSES = {
             P: 'bg-amber-100 text-amber-700 border-amber-300 dark:bg-amber-900/40 dark:text-amber-300',
@@ -226,57 +206,31 @@
             empty: 'bg-slate-100 dark:bg-slate-800 text-slate-300 dark:text-slate-700 border-transparent'
         };
 
-        // --- Logic Handlers ---
-
-        window.initApp = async () => {
-            // Menggunakan token khusus jika ada (lingkungan kolaborasi), atau login anonim
-            if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                try {
-                    await signInWithCustomToken(auth, __initial_auth_token);
-                } catch (e) {
-                    await signInAnonymously(auth);
-                }
-            } else {
-                await signInAnonymously(auth);
-            }
-
-            onAuthStateChanged(auth, (user) => {
-                window.state.user = user;
-                if (user) startSync();
-            });
-        };
-
-        let unsubscribe = null;
         function startSync() {
-            if (unsubscribe) unsubscribe();
-
             const month = window.state.currentDate.getMonth();
             const year = window.state.currentDate.getFullYear();
-            
-            // Mengikuti RULE 1: /artifacts/{appId}/public/data/{collectionName}
-            const docRef = doc(db, 'artifacts', appId, 'public', 'data', `schedule_${year}_${month}`);
+            const dbRef = ref(db, `schedules/${year}_${month}`);
 
             document.getElementById('statusIndicator').className = 'w-2 h-2 rounded-full bg-amber-500 animate-pulse';
             document.getElementById('statusText').innerText = 'Syncing';
 
-            unsubscribe = onSnapshot(docRef, (docSnap) => {
-                window.state.schedule = docSnap.exists() ? docSnap.data() : {};
+            // Realtime listener
+            onValue(dbRef, (snapshot) => {
+                window.state.schedule = snapshot.val() || {};
                 renderCalendar();
                 updateStats();
                 document.getElementById('statusIndicator').className = 'w-2 h-2 rounded-full bg-green-500';
                 document.getElementById('statusText').innerText = 'Live';
-            }, (err) => {
-                console.error("Firestore sync error:", err);
-                document.getElementById('statusText').innerText = 'Offline';
+            }, (error) => {
+                console.error("Database sync error:", error);
+                document.getElementById('statusText').innerText = 'Rules Error';
             });
         }
 
         function renderCalendar() {
             const container = document.getElementById('scheduleBody');
             const date = window.state.currentDate;
-            const month = date.getMonth();
-            const year = date.getFullYear();
-            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            const daysInMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
 
             document.getElementById('monthLabel').innerText = date.toLocaleString('id-ID', { month: 'long', year: 'numeric' });
 
@@ -346,16 +300,16 @@
         };
 
         window.selectShift = async (val) => {
-            if (!window.state.user || !window.state.activeTarget) return;
+            if (!window.state.activeTarget) return;
             
             const { day, person } = window.state.activeTarget;
             const month = window.state.currentDate.getMonth();
             const year = window.state.currentDate.getFullYear();
-            const docRef = doc(db, 'artifacts', appId, 'public', 'data', `schedule_${year}_${month}`);
+            const dbRef = ref(db, `schedules/${year}_${month}`);
             
             const key = `${person}-${day}`;
             try {
-                await setDoc(docRef, { [key]: val }, { merge: true });
+                await update(dbRef, { [key]: val });
             } catch (e) {
                 console.error("Save error:", e);
             }
@@ -371,7 +325,8 @@
             }
         };
 
-        window.onload = window.initApp;
+        // Inisialisasi awal
+        window.onload = startSync;
 
     </script>
 </body>
