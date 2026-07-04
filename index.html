@@ -5,10 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
     <title>Schedule+</title>
     
-    <!-- ✅ OPTIMASI 1: PWA Manifest -->
+    <!-- PWA Manifest -->
     <link rel="manifest" href="data:application/json,{%22name%22:%22Schedule+%22,%22short_name%22:%22Schedule%22,%22start_url%22:%22.%22,%22display%22:%22standalone%22,%22background_color%22:%22%23f8fafc%22,%22theme_color%22:%22%23f43f5e%22,%22icons%22:[{%22src%22:%22data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23f43f5e'%3E%3Cpath d='M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z'/%3E%3C/svg%3E%22,%22sizes%22:%22192x192%22,%22type%22:%22image/svg+xml%22}]}">
     
-    <!-- ✅ OPTIMASI 2: Font Load dengan Preconnect + Fallback -->
+    <!-- Font Optimization -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link 
@@ -21,7 +21,7 @@
         <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     </noscript>
     
-    <!-- ✅ OPTIMASI 3: Tailwind dengan Purge (hanya yang dipakai) -->
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -38,7 +38,7 @@
     </script>
     
     <style>
-        /* ✅ OPTIMASI 4: Critical CSS inline */
+        /* Critical CSS */
         * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
         body { 
             font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -46,7 +46,7 @@
             -moz-osx-font-smoothing: grayscale;
         }
         
-        /* Animasi ringan */
+        /* Animations */
         .modal-active { display: flex !important; animation: fadeIn .2s ease-out forwards; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes slideUp { from { transform: translateY(20px) scale(0.98); opacity: 0; } to { transform: translateY(0) scale(1); opacity: 1; } }
@@ -62,7 +62,7 @@
             .print-card { border: 1px solid #e2e8f0 !important; box-shadow: none !important; }
         }
 
-        /* ✅ OPTIMASI 5: Skeleton loading */
+        /* Skeleton loading */
         .skeleton { 
             background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%);
             background-size: 200% 100%;
@@ -71,13 +71,11 @@
         .dark .skeleton { background: linear-gradient(90deg, #1e293b 25%, #334155 50%, #1e293b 75%); }
         @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
 
-        /* Transisi halus */
         #scheduleBody { transition: opacity 200ms ease; }
         #scheduleBody tr { transition: background 150ms ease; }
         .toast-enter { animation: toastIn 300ms cubic-bezier(.16,1,.3,1) forwards; }
         @keyframes toastIn { from { transform: translateY(20px) scale(0.95); opacity: 0; } to { transform: translateY(0) scale(1); opacity: 1; } }
         
-        /* ✅ OPTIMASI 6: Reduce motion untuk pengguna dengan preferensi */
         @media (prefers-reduced-motion: reduce) {
             * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
         }
@@ -85,10 +83,10 @@
 </head>
 <body class="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 min-h-screen pb-20 transition-colors duration-300">
 
-    <!-- ✅ OPTIMASI 7: Toast Container dengan aria-live untuk aksesibilitas -->
+    <!-- Toast Container -->
     <div id="toastContainer" class="fixed top-20 right-4 z-50 flex flex-col gap-2 pointer-events-none no-print" aria-live="polite"></div>
 
-    <!-- ✅ OPTIMASI 8: Navbar lebih ringkas dengan semantic HTML -->
+    <!-- Navbar -->
     <header class="sticky top-0 z-40 bg-white/80 dark:bg-slate-900/80 backdrop-blur-lg border-b border-slate-200/80 dark:border-slate-800/80 px-4 py-2 transition-colors duration-300 no-print">
         <nav class="max-w-4xl mx-auto flex justify-between items-center" aria-label="Navigasi utama">
             <div class="flex items-center gap-2.5">
@@ -221,15 +219,7 @@
                         </tr>
                     </thead>
                     <tbody id="scheduleBody" class="divide-y divide-slate-100 dark:divide-slate-800/60">
-                        <!-- Skeleton loading -->
-                        ${Array.from({length: 10}, (_, i) => `
-                            <tr>
-                                <td class="p-2.5 text-center"><div class="skeleton w-7 h-7 rounded-full mx-auto"></div></td>
-                                <td class="p-1.5"><div class="skeleton h-9 rounded-xl w-full"></div></td>
-                                <td class="p-1.5"><div class="skeleton h-9 rounded-xl w-full"></div></td>
-                                <td class="p-1.5"><div class="skeleton h-9 rounded-xl w-full"></div></td>
-                            </tr>
-                        `).join('')}
+                        <!-- Data akan diisi oleh JavaScript -->
                     </tbody>
                 </table>
             </div>
@@ -305,7 +295,7 @@
         </div>
     </div>
 
-    <!-- ✅ OPTIMASI 9: Service Worker Registration -->
+    <!-- Service Worker Registration -->
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
@@ -316,11 +306,11 @@
         }
     </script>
 
-    <!-- ✅ OPTIMASI 10: Main App dengan Dynamic Import & IndexedDB -->
+    <!-- Main JavaScript -->
     <script type="module">
-        // ========================
-        // 🔥 KONFIGURASI
-        // ========================
+        // ========================================
+        // 🔥 KONFIGURASI FIREBASE
+        // ========================================
         const firebaseConfig = {
             apiKey: "AIzaSyDzQ_dxJzgAbgjxsIYTLnHmpD00x8vEdxU",
             authDomain: "schedule-us-8a0bf.firebaseapp.com",
@@ -331,9 +321,9 @@
             appId: "1:816949754573:web:737618eb5420903d6a8784"
         };
 
-        // ========================
+        // ========================================
         // 🗄️ INDEXEDDB CACHE
-        // ========================
+        // ========================================
         class ScheduleDB {
             constructor() {
                 this.db = null;
@@ -390,7 +380,7 @@
                 });
             }
             
-            async clearOldData(maxAge = 30 * 24 * 60 * 60 * 1000) { // 30 hari
+            async clearOldData(maxAge = 30 * 24 * 60 * 60 * 1000) {
                 await this.ready;
                 const all = await this.getAllMonths();
                 const now = Date.now();
@@ -407,9 +397,9 @@
 
         const db = new ScheduleDB();
 
-        // ========================
+        // ========================================
         // 📦 DYNAMIC FIREBASE IMPORT
-        // ========================
+        // ========================================
         async function loadFirebase() {
             const { initializeApp } = await import("https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js");
             const { getAuth, signInAnonymously, onAuthStateChanged } = await import("https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js");
@@ -417,9 +407,9 @@
             return { initializeApp, getAuth, signInAnonymously, onAuthStateChanged, getDatabase, ref, onValue, update, remove };
         }
 
-        // ========================
+        // ========================================
         // 📊 STATE
-        // ========================
+        // ========================================
         const state = {
             currentDate: new Date(),
             schedule: {},
@@ -432,7 +422,6 @@
             dbReady: false
         };
 
-        // SHIFT STYLES
         const SHIFT_CLASSES = {
             P: 'text-amber-600 dark:text-amber-400 border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800',
             S: 'text-emerald-600 dark:text-emerald-400 border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800',
@@ -446,9 +435,9 @@
         let currentListener = null;
         let isPageVisible = true;
 
-        // ========================
+        // ========================================
         // 📦 CACHE FUNCTIONS
-        // ========================
+        // ========================================
         function getCacheKey() {
             const d = state.currentDate;
             return `${d.getFullYear()}_${d.getMonth()}`;
@@ -458,7 +447,7 @@
             try {
                 const key = getCacheKey();
                 const data = await db.getMonth(key);
-                if (data) {
+                if (data && Object.keys(data).length > 0) {
                     state.schedule = data;
                     renderCalendar();
                     updateStatsAndAgenda();
@@ -473,18 +462,16 @@
             try {
                 const key = getCacheKey();
                 await db.saveMonth(key, data);
-                // Cleanup old data
                 await db.clearOldData();
             } catch (e) { console.warn('Cache save failed:', e); }
         }
 
-        // ========================
+        // ========================================
         // 🔥 FIREBASE SYNC
-        // ========================
+        // ========================================
         async function startSync() {
             if (!state.user || !isPageVisible) return;
 
-            // Load Firebase dynamically
             if (!state.firebase) {
                 try {
                     const fb = await loadFirebase();
@@ -504,12 +491,7 @@
             
             if (currentListener) currentListener();
             
-            // Load cache dulu
             const hasCache = await loadFromCache();
-            if (!hasCache) {
-                // Tampilkan skeleton
-                showSkeleton(true);
-            }
 
             updateStatus('syncing', 'Sync');
 
@@ -521,7 +503,6 @@
                 updateStatsAndAgenda();
                 updateStatus('live', 'Live');
                 document.getElementById('securityAlert').classList.add('hidden');
-                showSkeleton(false);
             }, async (error) => {
                 console.warn('Sync error:', error);
                 updateStatus('error', 'Offline');
@@ -529,13 +510,12 @@
                 if (!cached) {
                     showSecurityAlert('Tidak ada data. Periksa koneksi.');
                 }
-                showSkeleton(false);
             });
         }
 
-        // ========================
+        // ========================================
         // 📤 BATCH UPDATE
-        // ========================
+        // ========================================
         function queueUpdate(key, value) {
             state.pendingUpdates[key] = value;
             state.isDirty = true;
@@ -561,7 +541,6 @@
                     const { update, getDatabase, ref } = state.firebase;
                     await update(ref(getDatabase(state.firebase.app), `schedules/${year}_${month}`), updates);
                 }
-                // Update cache
                 Object.assign(state.schedule, updates);
                 await saveToCache(state.schedule);
                 showToast('Perubahan disimpan ✓');
@@ -572,16 +551,9 @@
             }
         }
 
-        // ========================
+        // ========================================
         // 🎨 UI FUNCTIONS
-        // ========================
-        function showSkeleton(show) {
-            const tbody = document.getElementById('scheduleBody');
-            if (show && Object.keys(state.schedule).length === 0) {
-                // Skeleton sudah ada di HTML
-            }
-        }
-
+        // ========================================
         function renderCalendar() {
             const container = document.getElementById('scheduleBody');
             const date = state.currentDate;
@@ -589,7 +561,6 @@
             
             document.getElementById('monthLabel').innerText = date.toLocaleString('id-ID', { month: 'long', year: 'numeric' });
 
-            // ✅ OPTIMASI 11: DocumentFragment untuk batch rendering
             const fragment = document.createDocumentFragment();
             
             for (let d = 1; d <= daysInMonth; d++) {
@@ -716,9 +687,9 @@
             alertBox.classList.remove('hidden');
         }
 
-        // ========================
+        // ========================================
         // 🌐 GLOBAL FUNCTIONS
-        // ========================
+        // ========================================
         window.saveNote = (day, value) => {
             queueUpdate(`n-${day}`, value);
         };
@@ -824,9 +795,9 @@
             }, 2500);
         };
 
-        // ========================
+        // ========================================
         // 🌙 THEME
-        // ========================
+        // ========================================
         window.toggleDarkMode = () => {
             document.documentElement.classList.toggle('dark');
             localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
@@ -848,9 +819,9 @@
             document.getElementById('theme-moon').style.display = isDark ? 'none' : 'block';
         }
 
-        // ========================
+        // ========================================
         // 🔄 VISIBILITY API
-        // ========================
+        // ========================================
         document.addEventListener('visibilitychange', () => {
             isPageVisible = !document.hidden;
             if (isPageVisible && state.user) {
@@ -858,15 +829,13 @@
             }
         });
 
-        // ========================
+        // ========================================
         // 🚀 INIT
-        // ========================
+        // ========================================
         initTheme();
 
-        // Load data dari cache dulu
         loadFromCache();
 
-        // Auth dengan Firebase
         async function initAuth() {
             try {
                 const fb = await loadFirebase();
@@ -895,13 +864,11 @@
 
         initAuth();
 
-        // Flush saat close
         window.addEventListener('beforeunload', () => {
             if (state.isDirty) flushUpdates();
         });
 
-        // ✅ OPTIMASI 12: Cleanup IndexedDB old data periodically
-        setInterval(() => db.clearOldData(), 24 * 60 * 60 * 1000); // 1 hari
+        setInterval(() => db.clearOldData(), 24 * 60 * 60 * 1000);
 
         console.log('✅ Schedule+ Ultimate - All optimizations applied!');
         console.log('📊 Optimasi:');
@@ -913,7 +880,6 @@
         console.log('  ✅ Batch updates (reduce Firebase traffic ~80%)');
         console.log('  ✅ Accessibility improvements');
         console.log('  ✅ Reduce motion support');
-        console.log('  ✅ Skeleton loading');
     </script>
 </body>
 </html>
