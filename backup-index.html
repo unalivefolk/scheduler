@@ -1,0 +1,654 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Schedule+</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#fff1f2',
+                            100: '#ffe4e6',
+                            500: '#f43f5e',
+                            600: '#e11d48',
+                            700: '#be123c',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+        
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        .modal-active { 
+            display: flex !important; 
+            animation: fadeIn 0.2s ease-out forwards; 
+        }
+        
+        @keyframes fadeIn { 
+            from { opacity: 0; backdrop-filter: blur(0px); } 
+            to { opacity: 1; backdrop-filter: blur(8px); } 
+        }
+        
+        @keyframes slideUp { 
+            from { transform: translateY(30px); opacity: 0; } 
+            to { transform: translateY(0); opacity: 1; } 
+        }
+        
+        .modal-content { 
+            animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; 
+        }
+
+        .custom-scrollbar::-webkit-scrollbar {
+            height: 6px;
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 9999px;
+        }
+        .dark .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #475569;
+        }
+
+        @media print {
+            .no-print { display: none !important; }
+            body { background: white !important; color: black !important; }
+            .print-container { width: 100% !important; max-width: none !important; margin: 0 !important; padding: 0 !important; }
+            .print-card { border: 1px solid #e2e8f0 !important; box-shadow: none !important; }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 min-h-screen pb-24 transition-colors duration-300">
+
+    <!-- Toast Notification Container -->
+    <div id="toastContainer" class="fixed top-20 right-4 z-50 flex flex-col gap-2 pointer-events-none no-print"></div>
+
+    <!-- Navbar -->
+    <nav class="sticky top-0 z-40 bg-white/80 dark:bg-slate-900/80 backdrop-blur-lg border-b border-slate-200/80 dark:border-slate-800/80 px-4 py-3 transition-colors duration-300">
+        <div class="max-w-4xl mx-auto flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <div class="text-rose-500">
+                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                </div>
+                <h1 class="text-xl font-bold tracking-tight leading-none text-slate-800 dark:text-slate-100">Schedule+</h1>
+            </div>
+            
+            <div class="flex items-center gap-2 no-print">
+                <!-- Theme Toggle Button -->
+                <button onclick="toggleDarkMode()" class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-all text-slate-500 dark:text-slate-400" title="Ubah Tema">
+                    <!-- Sun Icon -->
+                    <svg id="theme-sun" class="w-5 h-5 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m12.728 0l-.707-.707M6.343 6.343l-.707-.707M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                    <!-- Moon Icon -->
+                    <svg id="theme-moon" class="w-5 h-5 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                    </svg>
+                </button>
+
+                <!-- Print Button -->
+                <button onclick="window.print()" class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-all text-slate-500 dark:text-slate-400" title="Cetak Jadwal">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                    </svg>
+                </button>
+
+                <!-- Connection Indicator -->
+                <div class="flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 dark:bg-slate-800 rounded-xl transition-all">
+                    <div id="statusIndicator" class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></div>
+                    <span id="statusText" class="text-[9px] font-black uppercase tracking-wider text-slate-600 dark:text-slate-300">Hubung</span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-4xl mx-auto px-4 py-6 print-container">
+        
+        <!-- Peringatan Keamanan -->
+        <div id="securityAlert" class="hidden mb-6 p-4 bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900/30 text-rose-700 dark:text-rose-300 rounded-2xl text-sm font-medium no-print">
+            <div class="flex items-start gap-3">
+                <svg class="w-5 h-5 shrink-0 text-rose-500 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+                <div>
+                    <h4 class="font-bold">Masalah Sinkronisasi</h4>
+                    <p id="securityAlertMsg" class="text-xs text-rose-600/90 dark:text-rose-400/90 mt-1">Gagal terhubung ke database. Harap periksa jaringan Anda.</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Navigation Bar & Search -->
+        <section class="mb-6 flex flex-col sm:flex-row gap-4 items-stretch sm:items-center justify-between no-print">
+            <div class="flex items-center justify-between bg-white dark:bg-slate-900 p-1.5 rounded-2xl shadow-sm border border-slate-200 dark:border-slate-800 transition-all">
+                <button onclick="changeMonth(-1)" class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-all text-slate-600 dark:text-slate-300">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" /></svg>
+                </button>
+                <span id="monthLabel" class="px-6 py-1 text-sm font-extrabold text-slate-800 dark:text-slate-100 min-w-[150px] text-center tracking-wide">Memuat Bulan...</span>
+                <button onclick="changeMonth(1)" class="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-xl transition-all text-slate-600 dark:text-slate-300">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" /></svg>
+                </button>
+            </div>
+
+            <div class="relative flex-1 sm:max-w-xs">
+                <svg class="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+                <input type="number" id="searchInput" placeholder="Cari Tanggal (e.g. 15)" oninput="highlightRow(this.value)"
+                    class="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 focus:outline-none text-sm transition-all shadow-sm">
+            </div>
+        </section>
+
+        <!-- Stats Overview -->
+        <section class="grid grid-cols-2 gap-4 mb-6">
+            <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 rounded-3xl flex flex-col justify-between min-h-[100px] transition-all">
+                <div class="flex justify-between items-start">
+                    <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">Libur Bersama</p>
+                    <span class="text-emerald-500">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                        </svg>
+                    </span>
+                </div>
+                <div class="flex items-baseline gap-1 mt-2">
+                    <span id="statLibur" class="text-4xl font-bold tracking-tight text-emerald-500">0</span>
+                    <span class="text-xs font-medium text-slate-400">Hari</span>
+                </div>
+            </div>
+            
+            <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 rounded-3xl flex flex-col justify-between min-h-[100px] transition-all">
+                <div class="flex justify-between items-start">
+                    <p class="text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500">Shift Serasi</p>
+                    <span class="text-amber-500">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m12.728 0l-.707-.707M6.343 6.343l-.707-.707M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                    </span>
+                </div>
+                <div class="flex items-baseline gap-1 mt-2">
+                    <span id="statShift" class="text-4xl font-bold tracking-tight text-amber-500">0</span>
+                    <span class="text-xs font-medium text-slate-400">Hari</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Shift Legend Info (New Feature) -->
+        <section class="mb-6 bg-transparent border-t border-b border-slate-200 dark:border-slate-800 py-3 no-print transition-all">
+            <h4 class="text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-2 flex items-center gap-1.5">
+                Keterangan Shift
+            </h4>
+            <div class="flex flex-wrap gap-3 text-xs">
+                <span class="flex items-center gap-1 text-slate-600 dark:text-slate-400"><span class="font-bold text-amber-500">P</span> Pagi</span>
+                <span class="flex items-center gap-1 text-slate-600 dark:text-slate-400"><span class="font-bold text-emerald-500">S</span> Siang</span>
+                <span class="flex items-center gap-1 text-slate-600 dark:text-slate-400"><span class="font-bold text-indigo-500">M</span> Malam</span>
+                <span class="flex items-center gap-1 text-slate-600 dark:text-slate-400"><span class="font-bold text-rose-500">L</span> Libur</span>
+                <span class="flex items-center gap-1 text-slate-600 dark:text-slate-400"><span class="font-bold text-purple-500">C</span> Cuti</span>
+                <span class="flex items-center gap-1 text-slate-600 dark:text-slate-400"><span class="font-bold text-orange-500">PH</span> Hari Raya</span>
+            </div>
+        </section>
+
+        <!-- Agenda Section -->
+        <section id="agendaSection" class="mb-8 no-print hidden">
+            <div class="flex items-center justify-between mb-4 px-2">
+                <h3 class="text-xs font-black uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500">Momen Serasi Bulan Ini ✨</h3>
+                <span class="text-[10px] font-bold text-rose-500 bg-rose-50 dark:bg-rose-950/50 px-2 py-0.5 rounded-md">Interaktif</span>
+            </div>
+            <div id="agendaList" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3.5"></div>
+        </section>
+
+        <!-- Main Table Container -->
+        <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200/80 dark:border-slate-800/80 overflow-hidden mb-8 print-card transition-all">
+            <div class="overflow-x-auto custom-scrollbar">
+                <table class="w-full text-left border-collapse table-fixed min-w-[600px]">
+                    <thead>
+                        <tr class="bg-slate-50/50 dark:bg-slate-800/20 text-slate-400 dark:text-slate-500 text-[10px] font-bold uppercase tracking-widest border-b border-slate-200/60 dark:border-slate-800">
+                            <th class="p-4 w-16 text-center">Tgl</th>
+                            <th class="p-4 w-32 text-center">Suami</th>
+                            <th class="p-4 w-32 text-center">Istri</th>
+                            <th class="p-4 text-left">Catatan Agenda</th>
+                        </tr>
+                    </thead>
+                    <tbody id="scheduleBody" class="divide-y divide-slate-100 dark:divide-slate-800/60">
+                        <!-- Content rendered dynamic with JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Action Reset -->
+        <div class="flex justify-center mb-8 no-print">
+            <button onclick="openResetModal()" class="flex items-center gap-2 px-4 py-2 text-slate-400 hover:text-rose-500 transition-colors text-sm font-medium rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+                Reset Bulan Ini
+            </button>
+        </div>
+    </main>
+
+    <!-- Modals (Shift Picker) -->
+    <div id="pickerModal" class="fixed inset-0 z-50 hidden flex-col items-center justify-center p-4 bg-slate-950/40 backdrop-blur-sm transition-all duration-300">
+        <div class="modal-content bg-white dark:bg-slate-900 w-full max-w-sm rounded-3xl p-6 border border-slate-100 dark:border-slate-800 shadow-xl">
+            <div class="flex justify-between items-center mb-6">
+                <div>
+                    <h3 class="text-lg font-bold tracking-tight">Atur Shift</h3>
+                    <p id="pickerSub" class="text-xs text-slate-500 mt-1"></p>
+                </div>
+                <button onclick="closePicker()" class="p-2 text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-full transition-all">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+                </button>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-3">
+                <button onclick="selectShift('P')" class="bg-white dark:bg-slate-900 text-amber-600 dark:text-amber-400 border border-slate-200 dark:border-slate-700 hover:border-amber-400 dark:hover:border-amber-600 p-4 rounded-2xl font-bold flex flex-col items-center justify-center transition-all">
+                    <span class="text-lg">P</span>
+                    <span class="text-[10px] font-medium text-slate-500 mt-1">Pagi</span>
+                </button>
+                <button onclick="selectShift('S')" class="bg-white dark:bg-slate-900 text-emerald-600 dark:text-emerald-400 border border-slate-200 dark:border-slate-700 hover:border-emerald-400 dark:hover:border-emerald-600 p-4 rounded-2xl font-bold flex flex-col items-center justify-center transition-all">
+                    <span class="text-lg">S</span>
+                    <span class="text-[10px] font-medium text-slate-500 mt-1">Siang</span>
+                </button>
+                <button onclick="selectShift('M')" class="bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 border border-slate-200 dark:border-slate-700 hover:border-indigo-400 dark:hover:border-indigo-600 p-4 rounded-2xl font-bold flex flex-col items-center justify-center transition-all">
+                    <span class="text-lg">M</span>
+                    <span class="text-[10px] font-medium text-slate-500 mt-1">Malam</span>
+                </button>
+                <button onclick="selectShift('L')" class="bg-white dark:bg-slate-900 text-rose-600 dark:text-rose-400 border border-slate-200 dark:border-slate-700 hover:border-rose-400 dark:hover:border-rose-600 p-4 rounded-2xl font-bold flex flex-col items-center justify-center transition-all">
+                    <span class="text-lg">L</span>
+                    <span class="text-[10px] font-medium text-slate-500 mt-1">Libur</span>
+                </button>
+                <button onclick="selectShift('PH')" class="bg-white dark:bg-slate-900 text-orange-600 dark:text-orange-400 border border-slate-200 dark:border-slate-700 hover:border-orange-400 dark:hover:border-orange-600 p-4 rounded-2xl font-bold flex flex-col items-center justify-center transition-all">
+                    <span class="text-lg">PH</span>
+                    <span class="text-[10px] font-medium text-slate-500 mt-1">Hari Raya</span>
+                </button>
+                <button onclick="selectShift('C')" class="bg-white dark:bg-slate-900 text-purple-600 dark:text-purple-400 border border-slate-200 dark:border-slate-700 hover:border-purple-400 dark:hover:border-purple-600 p-4 rounded-2xl font-bold flex flex-col items-center justify-center transition-all">
+                    <span class="text-lg">C</span>
+                    <span class="text-[10px] font-medium text-slate-500 mt-1">Cuti</span>
+                </button>
+                <button onclick="selectShift('')" class="col-span-2 py-3 bg-slate-50 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700/80 text-slate-500 font-medium rounded-xl transition-all text-xs tracking-wide mt-1">
+                    Hapus Shift
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals (Reset Confirm) -->
+    <div id="resetModal" class="fixed inset-0 z-[60] hidden flex-col items-center justify-center p-4 bg-slate-950/40 backdrop-blur-sm transition-all duration-300">
+        <div class="modal-content bg-white dark:bg-slate-900 w-full max-w-sm rounded-3xl p-6 text-center border border-slate-100 dark:border-slate-800 shadow-xl">
+            <div class="w-12 h-12 bg-rose-50 dark:bg-rose-950/30 rounded-full flex items-center justify-center mx-auto mb-4 text-rose-500">
+                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+            </div>
+            <h3 class="text-lg font-bold mb-1 tracking-tight">Hapus Jadwal?</h3>
+            <p id="resetModalText" class="text-slate-500 text-xs mb-6 px-2 leading-relaxed">Tindakan ini bersifat permanen.</p>
+            <div class="flex flex-col gap-2">
+                <button onclick="executeReset()" class="w-full py-3 bg-rose-500 hover:bg-rose-600 text-white font-medium rounded-xl transition-all text-sm">Hapus Data</button>
+                <button onclick="closeResetModal()" class="w-full py-3 bg-slate-50 hover:bg-slate-100 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 font-medium rounded-xl transition-all text-sm">Batal</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+        import { getDatabase, ref, onValue, update, remove } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-database.js";
+
+        window.state = { currentDate: new Date(), schedule: {}, user: null };
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDzQ_dxJzgAbgjxsIYTLnHmpD00x8vEdxU",
+            authDomain: "schedule-us-8a0bf.firebaseapp.com",
+            databaseURL: "https://schedule-us-8a0bf-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "schedule-us-8a0bf",
+            storageBucket: "schedule-us-8a0bf.firebasestorage.app",
+            messagingSenderId: "816949754573",
+            appId: "1:816949754573:web:737618eb5420903d6a8784"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getDatabase(app);
+
+        // Styling badge modern
+        const SHIFT_CLASSES = {
+            P: 'text-amber-600 dark:text-amber-400 bg-transparent border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800',
+            S: 'text-emerald-600 dark:text-emerald-400 bg-transparent border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800',
+            M: 'text-indigo-600 dark:text-indigo-400 bg-transparent border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800',
+            L: 'text-rose-600 dark:text-rose-400 bg-transparent border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800',
+            PH: 'text-orange-600 dark:text-orange-400 bg-transparent border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800',
+            C: 'text-purple-600 dark:text-purple-400 bg-transparent border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800',
+            empty: 'text-slate-300 dark:text-slate-600 border-dashed border-slate-200 dark:border-slate-700 bg-transparent hover:bg-slate-50 dark:hover:bg-slate-800'
+        };
+
+        // Dark Mode Logic
+        window.toggleDarkMode = () => {
+            const isDark = document.documentElement.classList.toggle('dark');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            updateThemeIcons();
+        };
+
+        function initTheme() {
+            const savedTheme = localStorage.getItem('theme');
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+            updateThemeIcons();
+        }
+
+        function updateThemeIcons() {
+            const isDark = document.documentElement.classList.contains('dark');
+            document.getElementById('theme-sun').style.display = isDark ? 'block' : 'none';
+            document.getElementById('theme-moon').style.display = isDark ? 'none' : 'block';
+        }
+
+        // Custom Toast Notification System
+        window.showToast = (message, type = 'success') => {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            
+            let bgClass = 'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-100';
+            let iconColor = 'text-green-500';
+            let iconSvg = '<svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>';
+
+            if (type === 'error') {
+                bgClass = 'bg-rose-50 dark:bg-rose-950/40 border-rose-100 dark:border-rose-900/40 text-rose-800 dark:text-rose-200';
+                iconColor = 'text-rose-500';
+                iconSvg = '<svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>';
+            }
+
+            toast.className = `flex items-center gap-2 px-4 py-3 rounded-xl border ${bgClass} shadow-lg text-xs font-bold pointer-events-auto transform translate-y-2 opacity-0 transition-all duration-300`;
+            toast.innerHTML = `<span class="${iconColor}">${iconSvg}</span> <span>${message}</span>`;
+            
+            container.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.classList.remove('translate-y-2', 'opacity-0');
+            }, 10);
+
+            setTimeout(() => {
+                toast.classList.add('translate-y-2', 'opacity-0');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        };
+
+        // Firebase Auth listener
+        onAuthStateChanged(auth, (user) => { 
+            window.state.user = user; 
+            if (user) {
+                startSync(); 
+            } else {
+                signInAnonymously(auth).catch(err => {
+                    console.error("Auth Fail:", err);
+                    showSecurityAlert("Koneksi gagal. Aplikasi tidak dapat memvalidasi identitas.");
+                });
+            }
+        });
+
+        function showSecurityAlert(msg) {
+            const alertBox = document.getElementById('securityAlert');
+            document.getElementById('securityAlertMsg').innerText = msg;
+            alertBox.classList.remove('hidden');
+        }
+
+        let currentListener = null;
+        function startSync() {
+            const month = window.state.currentDate.getMonth();
+            const year = window.state.currentDate.getFullYear();
+            const dbRef = ref(db, `schedules/${year}_${month}`);
+            
+            if (currentListener) currentListener();
+            
+            // Set status to connecting
+            document.getElementById('statusIndicator').className = 'w-2 h-2 rounded-full bg-amber-500 animate-pulse';
+            document.getElementById('statusText').innerText = 'Syncing';
+
+            currentListener = onValue(dbRef, (snapshot) => {
+                window.state.schedule = snapshot.val() || {};
+                renderCalendar();
+                updateStatsAndAgenda();
+                document.getElementById('statusIndicator').className = 'w-2 h-2 rounded-full bg-emerald-500';
+                document.getElementById('statusText').innerText = 'Live';
+                document.getElementById('securityAlert').classList.add('hidden');
+            }, (error) => {
+                console.error("Sync Error:", error);
+                document.getElementById('statusIndicator').className = 'w-2 h-2 rounded-full bg-rose-500';
+                document.getElementById('statusText').innerText = 'Locked';
+                showSecurityAlert("Akses baca/tulis ditolak. Database dikunci atau Anda kehilangan otorisasi.");
+            });
+        }
+
+        function renderCalendar() {
+            const container = document.getElementById('scheduleBody');
+            const date = window.state.currentDate;
+            const daysInMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
+            
+            // Format Indo Month
+            document.getElementById('monthLabel').innerText = date.toLocaleString('id-ID', { month: 'long', year: 'numeric' });
+
+            let html = '';
+            for (let d = 1; d <= daysInMonth; d++) {
+                const hVal = window.state.schedule[`h-${d}`] || '';
+                const wVal = window.state.schedule[`w-${d}`] || '';
+                const nVal = window.state.schedule[`n-${d}`] || '';
+                
+                const isLibur = ['L', 'PH', 'C'].includes(hVal) && ['L', 'PH', 'C'].includes(wVal);
+                const isKerja = hVal && hVal === wVal && ['P', 'S', 'M'].includes(hVal);
+
+                // Baris Sorotan untuk visual serasi
+                let rowBgClass = '';
+                if (isLibur) {
+                    rowBgClass = 'bg-emerald-50/20 dark:bg-emerald-900/10 hover:bg-emerald-50/40 dark:hover:bg-emerald-900/20';
+                } else if (isKerja) {
+                    rowBgClass = 'bg-amber-50/20 dark:bg-amber-900/10 hover:bg-amber-50/40 dark:hover:bg-amber-900/20';
+                } else {
+                    rowBgClass = 'hover:bg-slate-50/50 dark:hover:bg-slate-800/20';
+                }
+
+                html += `
+                    <tr id="row-${d}" class="${rowBgClass} transition-all duration-200">
+                        <!-- Tanggal -->
+                        <td class="p-3 text-center">
+                            <span class="inline-flex items-center justify-center w-8 h-8 rounded-full font-bold text-sm ${isLibur ? 'text-emerald-600 dark:text-emerald-400' : isKerja ? 'text-amber-600 dark:text-amber-400' : 'text-slate-500 dark:text-slate-400'}">
+                                ${d}
+                            </span>
+                        </td>
+                        <!-- Suami Shift -->
+                        <td class="p-2">
+                            <button onclick="openPicker(${d}, 'h')" class="w-full h-10 rounded-xl border font-bold text-sm transition-all flex items-center justify-center gap-1 ${SHIFT_CLASSES[hVal] || SHIFT_CLASSES.empty}">
+                                <span>${hVal || '-'}</span>
+                            </button>
+                        </td>
+                        <!-- Istri Shift -->
+                        <td class="p-2">
+                            <button onclick="openPicker(${d}, 'w')" class="w-full h-10 rounded-xl border font-bold text-sm transition-all flex items-center justify-center gap-1 ${SHIFT_CLASSES[wVal] || SHIFT_CLASSES.empty}">
+                                <span>${wVal || '-'}</span>
+                            </button>
+                        </td>
+                        <!-- Catatan -->
+                        <td class="p-2">
+                            <div class="relative flex items-center w-full">
+                                <input type="text" value="${nVal}" 
+                                    placeholder="Tulis rencana..." 
+                                    onblur="window.saveNote(${d}, this.value)" 
+                                    onkeypress="if(event.key==='Enter') this.blur()"
+                                    class="w-full px-3 py-2 text-xs font-medium rounded-xl border border-transparent hover:border-slate-200 dark:hover:border-slate-700 bg-transparent text-slate-800 dark:text-slate-100 transition-all focus:outline-none focus:border-slate-300 dark:focus:border-slate-600 focus:bg-white dark:focus:bg-slate-800 placeholder-slate-400 dark:placeholder-slate-500">
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }
+            container.innerHTML = html;
+        }
+
+        window.saveNote = async (day, value) => {
+            const month = window.state.currentDate.getMonth();
+            const year = window.state.currentDate.getFullYear();
+            try {
+                await update(ref(db, `schedules/${year}_${month}`), { [`n-${day}`]: value });
+                showToast(`Catatan tanggal ${day} disimpan`);
+            } catch (err) {
+                showToast("Gagal menyimpan catatan", "error");
+            }
+        };
+
+        function updateStatsAndAgenda() {
+            let liburCount = 0, shiftCount = 0;
+            let agendaHtml = '';
+            const days = new Date(window.state.currentDate.getFullYear(), window.state.currentDate.getMonth() + 1, 0).getDate();
+            
+            for (let d = 1; d <= days; d++) {
+                const h = window.state.schedule[`h-${d}`] || '';
+                const w = window.state.schedule[`w-${d}`] || '';
+                const n = window.state.schedule[`n-${d}`] || '';
+                
+                if (h && w) {
+                    if (['L', 'PH', 'C'].includes(h) && ['L', 'PH', 'C'].includes(w)) {
+                        liburCount++;
+                        agendaHtml += createAgendaCard(d, 'Libur Bersama', 'text-emerald-500 bg-emerald-50 dark:bg-emerald-500/10 border-emerald-100 dark:border-emerald-500/20', n);
+                    } else if (h === w && ['P', 'S', 'M'].includes(h)) {
+                        shiftCount++;
+                        let textShift = h === 'P' ? 'Shift Pagi' : h === 'S' ? 'Shift Siang' : 'Shift Malam';
+                        agendaHtml += createAgendaCard(d, textShift, 'text-amber-500 bg-amber-50 dark:bg-amber-500/10 border-amber-100 dark:border-amber-500/20', n);
+                    }
+                }
+            }
+
+            document.getElementById('statLibur').innerText = liburCount;
+            document.getElementById('statShift').innerText = shiftCount;
+            
+            const agendaList = document.getElementById('agendaList');
+            const agendaSection = document.getElementById('agendaSection');
+            
+            if (agendaHtml) {
+                agendaList.innerHTML = agendaHtml;
+                agendaSection.classList.remove('hidden');
+            } else {
+                agendaSection.classList.add('hidden');
+            }
+        }
+
+        function createAgendaCard(day, label, colorClass, note) {
+            const hasNote = note && note.trim() !== "";
+            const noteIndicator = hasNote ? `
+                <div class="absolute top-2 right-2 flex h-1.5 w-1.5">
+                    <span class="relative inline-flex rounded-full h-1.5 w-1.5 bg-rose-400"></span>
+                </div>
+            ` : '';
+
+            return `
+                <div onclick="highlightRow(${day})" class="relative cursor-pointer bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-3 rounded-2xl flex items-center gap-3 hover:border-slate-300 dark:hover:border-slate-700 transition-all">
+                    ${noteIndicator}
+                    <div class="w-10 h-10 border ${colorClass} flex flex-col items-center justify-center rounded-xl shrink-0">
+                        <span class="text-[10px] font-medium leading-none opacity-80">Tgl</span>
+                        <span class="text-sm font-bold leading-none mt-0.5">${day}</span>
+                    </div>
+                    <div class="overflow-hidden">
+                        <p class="text-[11px] font-bold text-slate-700 dark:text-slate-200 truncate">${label}</p>
+                        <p class="text-[10px] text-slate-400 dark:text-slate-500 truncate mt-0.5">${note || 'Tanpa Rencana'}</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        window.changeMonth = (offset) => {
+            const d = window.state.currentDate;
+            window.state.currentDate = new Date(d.getFullYear(), d.getMonth() + offset, 1);
+            
+            // Animasi transisi tabel
+            const container = document.getElementById('scheduleBody');
+            container.style.opacity = '0';
+            setTimeout(() => {
+                startSync();
+                container.style.opacity = '1';
+            }, 150);
+        };
+
+        window.openPicker = (day, person) => {
+            window.state.activeTarget = { day, person };
+            document.getElementById('pickerSub').innerText = `Tgl ${day} • Shift ${person === 'h' ? 'Suami' : 'Istri'}`;
+            document.getElementById('pickerModal').classList.add('modal-active');
+            
+            // Vibrasi ringkas (haptic feedback jika di mobile)
+            if (navigator.vibrate) navigator.vibrate(10);
+        };
+
+        window.closePicker = () => {
+            document.getElementById('pickerModal').classList.remove('modal-active');
+        };
+
+        window.selectShift = async (val) => {
+            if (!window.state.user || !window.state.activeTarget) return;
+            const { day, person } = window.state.activeTarget;
+            const month = window.state.currentDate.getMonth();
+            const year = window.state.currentDate.getFullYear();
+            try {
+                await update(ref(db, `schedules/${year}_${month}`), { [`${person}-${day}`]: val });
+                closePicker();
+                showToast(`Shift ${person === 'h' ? 'Suami' : 'Istri'} Tgl ${day} berhasil diperbarui`);
+            } catch (err) {
+                showToast("Otorisasi ditolak untuk mengubah data", "error");
+            }
+        };
+
+        window.openResetModal = () => {
+            const mLabel = document.getElementById('monthLabel').innerText;
+            document.getElementById('resetModalText').innerText = `Kosongkan seluruh shift dan catatan bulan ${mLabel}?`;
+            document.getElementById('resetModal').classList.add('modal-active');
+        };
+
+        window.closeResetModal = () => document.getElementById('resetModal').classList.remove('modal-active');
+
+        window.executeReset = async () => {
+            if (!window.state.user) return;
+            const month = window.state.currentDate.getMonth();
+            const year = window.state.currentDate.getFullYear();
+            try {
+                await remove(ref(db, `schedules/${year}_${month}`));
+                closeResetModal();
+                showToast("Data bulan ini berhasil dikosongkan");
+            } catch (err) {
+                showToast("Gagal melakukan reset", "error");
+            }
+        };
+
+        window.highlightRow = (val) => {
+            // Bersihkan sorotan sebelumnya
+            document.querySelectorAll('tr[id^="row-"]').forEach(r => {
+                r.classList.remove('ring-2', 'ring-rose-500/50', 'dark:ring-rose-400/50', 'bg-rose-50/50', 'dark:bg-rose-950/20');
+            });
+            
+            if (!val || val.trim() === '') return;
+            
+            const target = document.getElementById(`row-${val}`);
+            if (target) {
+                target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                target.classList.add('ring-2', 'ring-rose-500/50', 'dark:ring-rose-400/50', 'bg-rose-50/50', 'dark:bg-rose-950/20');
+            }
+        };
+
+        // Initialize App & UI
+        initTheme();
+    </script>
+</body>
+</html>
