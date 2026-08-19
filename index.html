@@ -212,7 +212,7 @@
                 <table class="w-full text-left border-collapse table-fixed min-w-[600px]">
                     <thead>
                         <tr class="bg-slate-50/50 dark:bg-slate-800/20 text-slate-400 dark:text-slate-500 text-[9px] font-bold uppercase tracking-widest border-b border-slate-200/60 dark:border-slate-800">
-                            <th class="p-3 w-14 text-center">Tgl</th>
+                            <th class="p-3 w-16 text-center">Tgl / Hari</th>
                             <th class="p-3 w-28 text-center">Suami</th>
                             <th class="p-3 w-28 text-center">Istri</th>
                             <th class="p-3 text-left">Catatan</th>
@@ -557,7 +557,9 @@
         function renderCalendar() {
             const container = document.getElementById('scheduleBody');
             const date = state.currentDate;
-            const daysInMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
+            const year = date.getFullYear();
+            const month = date.getMonth();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
             
             document.getElementById('monthLabel').innerText = date.toLocaleString('id-ID', { month: 'long', year: 'numeric' });
 
@@ -568,6 +570,14 @@
                 const wVal = state.schedule[`w-${d}`] || '';
                 const nVal = state.schedule[`n-${d}`] || '';
                 
+                // Hitung nama hari sesuai kalender
+                const dateObj = new Date(year, month, d);
+                const dayOfWeek = dateObj.getDay(); // 0: Minggu, 6: Sabtu
+                const dayName = dateObj.toLocaleDateString('id-ID', { weekday: 'short' }); // Min, Sen, Sel, Rab, Kam, Jum, Sab
+                
+                const isSunday = dayOfWeek === 0;
+                const isSaturday = dayOfWeek === 6;
+
                 const isLibur = ['L', 'PH', 'C'].includes(hVal) && ['L', 'PH', 'C'].includes(wVal);
                 const isKerja = hVal && hVal === wVal && ['P', 'S', 'M'].includes(hVal);
 
@@ -578,14 +588,22 @@
 
                 const dateColor = isLibur ? 'text-emerald-600 dark:text-emerald-400' : 
                                  isKerja ? 'text-amber-600 dark:text-amber-400' : 
-                                 'text-slate-500 dark:text-slate-400';
+                                 isSunday ? 'text-rose-500 dark:text-rose-400 font-bold' :
+                                 'text-slate-700 dark:text-slate-200';
+
+                const dayNameColor = isSunday ? 'text-rose-500 dark:text-rose-400 font-bold' :
+                                     isSaturday ? 'text-sky-500 dark:text-sky-400 font-semibold' :
+                                     'text-slate-400 dark:text-slate-500';
 
                 const tr = document.createElement('tr');
                 tr.id = `row-${d}`;
                 tr.className = `${rowBg} transition-colors duration-150`;
                 tr.innerHTML = `
-                    <td class="p-2.5 text-center">
-                        <span class="inline-flex items-center justify-center w-7 h-7 rounded-full font-bold text-sm ${dateColor}">${d}</span>
+                    <td class="p-2 text-center">
+                        <div class="flex flex-col items-center justify-center">
+                            <span class="inline-flex items-center justify-center w-7 h-7 rounded-full font-bold text-sm ${dateColor}">${d}</span>
+                            <span class="text-[10px] uppercase font-semibold leading-none mt-0.5 ${dayNameColor}">${dayName}</span>
+                        </div>
                     </td>
                     <td class="p-1.5">
                         <button onclick="openPicker(${d}, 'h')" 
@@ -618,21 +636,26 @@
         function updateStatsAndAgenda() {
             let liburCount = 0, shiftCount = 0;
             let agendaHtml = '';
-            const days = new Date(state.currentDate.getFullYear(), state.currentDate.getMonth() + 1, 0).getDate();
+            const year = state.currentDate.getFullYear();
+            const month = state.currentDate.getMonth();
+            const days = new Date(year, month + 1, 0).getDate();
             
             for (let d = 1; d <= days; d++) {
                 const h = state.schedule[`h-${d}`] || '';
                 const w = state.schedule[`w-${d}`] || '';
                 const n = state.schedule[`n-${d}`] || '';
                 
+                const dateObj = new Date(year, month, d);
+                const dayName = dateObj.toLocaleDateString('id-ID', { weekday: 'short' });
+                
                 if (h && w) {
                     if (['L', 'PH', 'C'].includes(h) && ['L', 'PH', 'C'].includes(w)) {
                         liburCount++;
-                        agendaHtml += createAgendaCard(d, 'Libur', 'text-emerald-500 bg-emerald-50 dark:bg-emerald-500/10 border-emerald-100', n);
+                        agendaHtml += createAgendaCard(d, 'Libur', 'text-emerald-500 bg-emerald-50 dark:bg-emerald-500/10 border-emerald-100', n, dayName);
                     } else if (h === w && ['P', 'S', 'M'].includes(h)) {
                         shiftCount++;
                         const label = h === 'P' ? 'Pagi' : h === 'S' ? 'Siang' : 'Malam';
-                        agendaHtml += createAgendaCard(d, `Shift ${label}`, 'text-amber-500 bg-amber-50 dark:bg-amber-500/10 border-amber-100', n);
+                        agendaHtml += createAgendaCard(d, `Shift ${label}`, 'text-amber-500 bg-amber-50 dark:bg-amber-500/10 border-amber-100', n, dayName);
                     }
                 }
             }
@@ -651,14 +674,14 @@
             }
         }
 
-        function createAgendaCard(day, label, colorClass, note) {
+        function createAgendaCard(day, label, colorClass, note, dayName = '') {
             const hasNote = note && note.trim() !== '';
             return `
                 <div onclick="highlightRow(${day})" 
                     class="cursor-pointer bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-2.5 rounded-xl flex items-center gap-2.5 hover:border-slate-300 dark:hover:border-slate-700 transition-all">
                     ${hasNote ? `<div class="h-1.5 w-1.5 rounded-full bg-rose-400 shrink-0"></div>` : ''}
-                    <div class="w-9 h-9 border ${colorClass} flex flex-col items-center justify-center rounded-lg shrink-0">
-                        <span class="text-[8px] font-medium leading-none opacity-80">Tgl</span>
+                    <div class="w-10 h-10 border ${colorClass} flex flex-col items-center justify-center rounded-lg shrink-0">
+                        <span class="text-[8px] font-semibold leading-none opacity-80 uppercase">${dayName}</span>
                         <span class="text-sm font-bold leading-none mt-0.5">${day}</span>
                     </div>
                     <div class="overflow-hidden flex-1 min-w-0">
@@ -870,16 +893,8 @@
 
         setInterval(() => db.clearOldData(), 24 * 60 * 60 * 1000);
 
-        console.log('✅ Schedule+ Ultimate - All optimizations applied!');
-        console.log('📊 Optimasi:');
-        console.log('  ✅ PWA Manifest & Service Worker');
-        console.log('  ✅ Font preload + fallback');
-        console.log('  ✅ Dynamic Firebase Import (~200KB saved)');
-        console.log('  ✅ IndexedDB Cache (unlimited storage)');
-        console.log('  ✅ DocumentFragment batch rendering');
-        console.log('  ✅ Batch updates (reduce Firebase traffic ~80%)');
-        console.log('  ✅ Accessibility improvements');
-        console.log('  ✅ Reduce motion support');
+        console.log('✅ Schedule+ Updated - Dynamic day names enabled!');
     </script>
 </body>
 </html>
+
